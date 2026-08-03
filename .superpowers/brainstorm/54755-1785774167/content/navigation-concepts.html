@@ -1,0 +1,58 @@
+<h2>¿Cómo navegas los meses guardados?</h2>
+<p class="subtitle">Cada mes acumula un montón de recibitos de gastos. ¿Cómo los repasas después? (esto es solo la mecánica de navegación — el estilo visual final del diner/kraft lo afinamos después)</p>
+
+<div class="cards">
+  <div class="card" data-choice="llavero" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="position:relative;width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#2b2b2b;border-radius:8px;">
+        <div style="position:relative;width:140px;height:140px;">
+          <div style="position:absolute;inset:0;border:3px dashed #999;border-radius:50%;"></div>
+          <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);width:36px;height:52px;background:#e8dcc0;border:2px solid #8a6a4e;border-radius:4px;box-shadow:0 4px 8px rgba(0,0,0,0.4);">Jun</div>
+          <div style="position:absolute;top:50%;right:-14px;transform:translateY(-50%);width:36px;height:52px;background:#e8dcc0;border:2px solid #8a6a4e;border-radius:4px;box-shadow:0 4px 8px rgba(0,0,0,0.4);">Jul</div>
+          <div style="position:absolute;bottom:-14px;left:50%;transform:translateX(-50%);width:36px;height:52px;background:#c1503b;border:2px solid #8a6a4e;border-radius:4px;box-shadow:0 4px 8px rgba(0,0,0,0.4);color:white;">Ago</div>
+          <div style="position:absolute;top:50%;left:-14px;transform:translateY(-50%);width:36px;height:52px;background:#e8dcc0;border:2px solid #8a6a4e;border-radius:4px;box-shadow:0 4px 8px rgba(0,0,0,0.4);">May</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Llavero circular</h3>
+      <p>Los meses cuelgan alrededor de un anillo. Giras el llavero con el dedo y el mes que queda "al frente" (abajo, más grande) se abre. Vistoso, pero es la mecánica más compleja de construir y de usar con una sola mano.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="pila" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#2b2b2b;border-radius:8px;">
+        <div style="position:relative;width:90px;height:120px;">
+          <div style="position:absolute;top:12px;left:8px;width:90px;height:120px;background:#d8cba8;border:2px solid #8a6a4e;border-radius:4px;transform:rotate(-6deg);"></div>
+          <div style="position:absolute;top:6px;left:4px;width:90px;height:120px;background:#e2d5b3;border:2px solid #8a6a4e;border-radius:4px;transform:rotate(3deg);"></div>
+          <div style="position:absolute;top:0;left:0;width:90px;height:120px;background:#c1503b;border:2px solid #8a6a4e;border-radius:4px;color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;">AGO</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Pila de tarjetas de mes</h3>
+      <p>Los meses se apilan como un mazo, el actual arriba y ladeado. Tocas el mes de arriba para abrirlo, o deslizas para ver el anterior. Más simple de tocar y de construir; menos "espectáculo" que el llavero.</p>
+    </div>
+  </div>
+
+  <div class="card" data-choice="libreta" onclick="toggleSelect(this)">
+    <div class="card-image">
+      <div style="width:100%;height:180px;display:flex;align-items:center;justify-content:center;background:#2b2b2b;border-radius:8px;">
+        <div style="position:relative;width:110px;height:150px;background:#e2d5b3;border:2px solid #8a6a4e;border-radius:2px 8px 8px 2px;box-shadow:4px 4px 0 #8a6a4e;">
+          <div style="position:absolute;left:-4px;top:10px;width:8px;height:8px;border-radius:50%;background:#2b2b2b;"></div>
+          <div style="position:absolute;left:-4px;top:40px;width:8px;height:8px;border-radius:50%;background:#2b2b2b;"></div>
+          <div style="position:absolute;left:-4px;top:70px;width:8px;height:8px;border-radius:50%;background:#2b2b2b;"></div>
+          <div style="position:absolute;left:-4px;top:100px;width:8px;height:8px;border-radius:50%;background:#2b2b2b;"></div>
+          <div style="position:absolute;left:-4px;top:130px;width:8px;height:8px;border-radius:50%;background:#2b2b2b;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>Libreta con pestañas</h3>
+      <p>Un solo cuaderno encuadernado; cada mes es una pestaña lateral (como las agendas viejas de contabilidad). Tocas la pestaña "Agosto" y pasas directo a esas hojas. Íntimo, ordenado, y coherente con el tema de recibos/oficina vieja.</p>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top:24px;">Elige la que más te guste, o dime si quieres mezclar ideas de varias.</p>
