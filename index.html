@@ -9,7 +9,6 @@
 <style>
   body { font-family: -apple-system, sans-serif; margin: 0; padding: 16px; max-width: 480px; margin-inline: auto; }
   #totales { padding: 14px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 18px; }
-  #pagina { padding: 18px; border: 1px solid #ccc; border-radius: 10px; min-height: 200px; }
   #controles { display: flex; justify-content: space-between; margin-top: 16px; gap: 8px; }
   #controles button { padding: 12px 14px; font-size: 1rem; }
   #controles button:disabled { opacity: 0.3; }
@@ -21,11 +20,42 @@
   .recibo-preview pre { margin: 0; font-family: monospace; font-size: 0.9rem; color: #333; }
   #guardarBtn { width: 100%; padding: 12px; margin-top: 10px; }
   #guardarBtn:disabled { opacity: 0.4; }
+
+  .spiral { width: 100%; height: 14px; background: repeating-linear-gradient(90deg,#8a6a4e 0 6px, transparent 6px 14px); margin-bottom: -6px; position: relative; z-index: 5; }
+  #notebook { position: relative; width: 100%; min-height: 220px; perspective: 1400px; }
+  .pagina-cara, .leaf, .face { position: absolute; inset: 0; border-radius: 6px; }
+  .pagina-cara { background: #f4ead2; border: 2px solid #8a6a4e; padding: 18px; box-sizing: border-box; box-shadow: 0 10px 20px rgba(0,0,0,.25); }
+  .leaf { transform-style: preserve-3d; transform-origin: top center; }
+  .face { backface-visibility: hidden; border: 2px solid #8a6a4e; box-sizing: border-box; padding: 18px; box-shadow: 0 10px 20px rgba(0,0,0,.25); }
+  .face-front { background: #f4ead2; }
+  .face-back { background: #b89f74; transform: rotateX(180deg); }
+  .crease-shadow { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.4) 50%, transparent 60%); opacity: 0; pointer-events: none; }
+  .stamp { position: absolute; top: 40%; left: 50%; width: 150px; padding: 6px 0; border: 3px solid #c1503b; color: #c1503b; font-weight: bold; text-align: center; letter-spacing: .1em; transform: translate(-50%,-50%) rotate(-14deg) scale(1); opacity: 0; pointer-events: none; z-index: 10; }
+  .stamp.show { animation: stampPop .9s ease forwards; }
+  @keyframes stampPop { 0%{opacity:0; transform:translate(-50%,-50%) rotate(-14deg) scale(2.2);} 30%{opacity:1; transform:translate(-50%,-50%) rotate(-14deg) scale(1);} 75%{opacity:1;} 100%{opacity:0; transform:translate(-50%,-50%) rotate(-14deg) scale(1);} }
+  .leaf.flip-up { animation: flipUp .7s cubic-bezier(.5,-0.2,.3,1.3) forwards; }
+  .leaf.flip-down { animation: flipDown .7s cubic-bezier(.5,-0.2,.3,1.3) forwards; }
+  .leaf.flip-up .crease-shadow, .leaf.flip-down .crease-shadow { animation: crease .7s ease forwards; }
+  @keyframes flipUp { from{transform:rotateX(0deg);} to{transform:rotateX(-180deg);} }
+  @keyframes flipDown { from{transform:rotateX(-180deg);} to{transform:rotateX(0deg);} }
+  @keyframes crease { 0%{opacity:0;} 45%{opacity:1;} 55%{opacity:1;} 100%{opacity:0;} }
+  @media (prefers-reduced-motion: reduce) {
+    .leaf.flip-up, .leaf.flip-down, .leaf.flip-up .crease-shadow, .leaf.flip-down .crease-shadow { animation: none; }
+  }
 </style>
 </head>
 <body>
   <div id="totales"></div>
-  <div id="pagina"></div>
+  <div id="notebook">
+    <div class="spiral"></div>
+    <div id="pageUnder" class="pagina-cara"></div>
+    <div id="leaf" class="leaf">
+      <div id="faceFront" class="pagina-cara face-front"></div>
+      <div class="face face-back"></div>
+      <div class="crease-shadow"></div>
+    </div>
+    <div id="stamp" class="stamp">GUARDADO</div>
+  </div>
   <div id="controles">
     <button id="btnMesAnterior">◀ Mes</button>
     <button id="btnArriba">▲</button>
@@ -58,7 +88,6 @@
     const gastosDelMes = gastosPorMes[mesKey] || [];
     const resumen = calcularResumenMes(gastosDelMes);
     const paginas = obtenerPaginas(gastosDelMes, esMesActual);
-
     estado.posicion = clamp(estado.posicion, -1, paginas.length - 1);
 
     document.getElementById('totales').innerHTML = `
@@ -67,12 +96,25 @@
       ${CATEGORIAS.map(cat => `${cat}: ${moneda(resumen.porCategoria[cat])}`).join(' · ')}
     `;
 
-    renderPagina(estado.posicion === -1 ? 'portada' : paginas[estado.posicion], mesKey, resumen);
+    const contenidoActual = estado.posicion === -1 ? 'portada' : paginas[estado.posicion];
+    const html = htmlDePagina(contenidoActual, mesKey, resumen);
+
+    if (!window._paginaInicial) {
+      document.getElementById('faceFront').innerHTML = html;
+      document.getElementById('pageUnder').innerHTML = html;
+      window._paginaInicial = true;
+    }
+
+    marcarSeleccionActiva();
+    actualizarGuardar();
+    actualizarRecibo();
 
     document.getElementById('btnMesAnterior').disabled = estado.mesIndex === 0;
     document.getElementById('btnMesSiguiente').disabled = estado.mesIndex === meses.length - 1;
     document.getElementById('btnArriba').disabled = estado.posicion === -1;
     document.getElementById('btnAbajo').disabled = estado.posicion === paginas.length - 1;
+
+    return { mesKey, esMesActual, gastosDelMes, resumen, paginas, contenidoActual, html };
   }
 
   function nombreMes(mesKey) {
@@ -84,41 +126,24 @@
   const PAGOS = ['BreB', 'RappiCard', 'Efectivo'];
   let seleccion = { categoria: null, pago: null };
 
-  function renderPagina(contenido, mesKey, resumen) {
-    const pagina = document.getElementById('pagina');
-
+  function htmlDePagina(contenido, mesKey, resumen) {
     if (contenido === 'portada') {
-      pagina.innerHTML = `<div class="portada"><h2>${nombreMes(mesKey)}</h2><p>Total: ${moneda(resumen.total)}</p></div>`;
-      return;
+      return `<div class="portada"><h2>${nombreMes(mesKey)}</h2><p>Total: ${moneda(resumen.total)}</p></div>`;
     }
-
     if (contenido === 'blanco') {
-      pagina.innerHTML = `
-        <div class="hoja-blanco">
-          <input type="number" id="monto" inputmode="decimal" placeholder="Monto">
-          <div class="chips" id="chipsCategoria">
-            ${CATEGORIAS.map(c => `<button type="button" class="chip" data-cat="${c}">${c}</button>`).join('')}
-          </div>
-          <div class="chips" id="chipsPago">
-            ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
-          </div>
-          <div class="recibo-preview"><pre id="reciboPreview"></pre></div>
-          <button id="guardarBtn" disabled>Guardar gasto</button>
+      return `
+        <input type="number" id="monto" inputmode="decimal" placeholder="Monto">
+        <div class="recibo-preview"><pre id="reciboPreview"></pre></div>
+        <div class="chips" id="chipsCategoria">
+          ${CATEGORIAS.map(c => `<button type="button" class="chip" data-cat="${c}">${c}</button>`).join('')}
         </div>
+        <div class="chips" id="chipsPago">
+          ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
+        </div>
+        <button id="guardarBtn" disabled>Guardar gasto</button>
       `;
-      marcarSeleccionActiva();
-      actualizarGuardar();
-      actualizarRecibo();
-      return;
     }
-
-    pagina.innerHTML = `
-      <div class="hoja-escrita">
-        <p>${contenido.categoria}</p>
-        <p>${contenido.pago}</p>
-        <p>${moneda(contenido.monto)}</p>
-      </div>
-    `;
+    return `<div class="hoja-escrita"><p>${contenido.categoria}</p><p>${contenido.pago}</p><p>${moneda(contenido.monto)}</p></div>`;
   }
 
   function marcarSeleccionActiva() {
@@ -134,6 +159,37 @@
     btn.disabled = !(monto > 0 && seleccion.categoria && seleccion.pago);
   }
 
+  function moverPagina(direccion) {
+    estado.posicion += (direccion === 'arriba' ? -1 : 1);
+    const datos = render();
+    const leaf = document.getElementById('leaf');
+    leaf.classList.remove('flip-up', 'flip-down');
+    void leaf.offsetWidth;
+    document.getElementById('pageUnder').innerHTML = datos.html;
+    leaf.classList.add(direccion === 'arriba' ? 'flip-up' : 'flip-down');
+
+    let terminado = false;
+    const terminar = () => {
+      if (terminado) return;
+      terminado = true;
+      leaf.style.transform = 'rotateX(0deg)';
+      leaf.classList.remove('flip-up', 'flip-down');
+      document.getElementById('faceFront').innerHTML = datos.html;
+      // Vaciar pageUnder evita ids duplicados (monto, chips, guardarBtn) entre
+      // la cara visible y la hoja de abajo; se vuelve a llenar en el próximo doblez.
+      document.getElementById('pageUnder').innerHTML = '';
+      marcarSeleccionActiva();
+      actualizarGuardar();
+      actualizarRecibo();
+      leaf.removeEventListener('animationend', terminar);
+    };
+    // `animationend` no se dispara si prefers-reduced-motion desactiva la animación
+    // (animation: none), así que un timeout de respaldo garantiza que la hoja
+    // siempre termine de intercambiar su contenido.
+    leaf.addEventListener('animationend', terminar, { once: true });
+    setTimeout(terminar, 750);
+  }
+
   function guardarGasto() {
     const monto = parseFloat(document.getElementById('monto').value);
     if (!(monto > 0) || !seleccion.categoria || !seleccion.pago) return;
@@ -141,7 +197,11 @@
     gastos.push({ id: Date.now(), monto, categoria: seleccion.categoria, pago: seleccion.pago, fecha: new Date().toISOString() });
     guardarGastos(gastos);
     seleccion = { categoria: null, pago: null };
-    render();
+
+    const stamp = document.getElementById('stamp');
+    stamp.classList.remove('show'); void stamp.offsetWidth; stamp.classList.add('show');
+
+    setTimeout(() => moverPagina('abajo'), 250);
   }
 
   function textoRecibo() {
@@ -170,7 +230,7 @@
     if (el) escribirTexto(el, textoRecibo());
   }
 
-  document.getElementById('pagina').addEventListener('click', (e) => {
+  document.getElementById('notebook').addEventListener('click', (e) => {
     const catBtn = e.target.closest('#chipsCategoria .chip');
     if (catBtn) { seleccion.categoria = catBtn.dataset.cat; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); return; }
     const pagoBtn = e.target.closest('#chipsPago .chip');
@@ -178,14 +238,14 @@
     if (e.target.id === 'guardarBtn') guardarGasto();
   });
 
-  document.getElementById('pagina').addEventListener('input', (e) => {
+  document.getElementById('notebook').addEventListener('input', (e) => {
     if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); }
   });
 
-  document.getElementById('btnMesAnterior').addEventListener('click', () => { estado.mesIndex -= 1; estado.posicion = -1; render(); });
-  document.getElementById('btnMesSiguiente').addEventListener('click', () => { estado.mesIndex += 1; estado.posicion = -1; render(); });
-  document.getElementById('btnArriba').addEventListener('click', () => { estado.posicion -= 1; render(); });
-  document.getElementById('btnAbajo').addEventListener('click', () => { estado.posicion += 1; render(); });
+  document.getElementById('btnMesAnterior').addEventListener('click', () => { estado.mesIndex -= 1; estado.posicion = -1; window._paginaInicial = false; render(); });
+  document.getElementById('btnMesSiguiente').addEventListener('click', () => { estado.mesIndex += 1; estado.posicion = -1; window._paginaInicial = false; render(); });
+  document.getElementById('btnArriba').addEventListener('click', () => moverPagina('arriba'));
+  document.getElementById('btnAbajo').addEventListener('click', () => moverPagina('abajo'));
 
   render();
 </script>
