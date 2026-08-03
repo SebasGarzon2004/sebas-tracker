@@ -38,7 +38,7 @@ Formas de pago que siempre debe preguntar al final de cada registro: BreB, Rappi
 
 ## Sistema de diseño ya establecido
 
-**Concepto**: la app se piensa como una libreta de contabilidad personal, no un formulario ni una lista genérica. Cada gasto guardado es su propia página del cuaderno (con espiral decorativa arriba, badge de categoría y sello de forma de pago), no una fila en una tabla; se hojea gasto por gasto deslizando, como quien repasa un cuaderno físico. La franja de totales del mes queda fija arriba, fuera del cuaderno, con el desglose por categoría.
+**Concepto**: la app se piensa como una libreta de contabilidad personal, no un formulario ni una lista genérica. Cada gasto guardado es su propia página del cuaderno (con espiral decorativa arriba y un badge de categoría; la forma de pago va como texto simple), no una fila en una tabla; se hojea gasto por gasto deslizando, como quien repasa un cuaderno físico. La franja de totales del mes queda fija arriba, fuera del cuaderno, con el desglose por categoría.
 
 **Paleta** (definida como variables CSS en `:root`, con overrides para modo oscuro vía `prefers-color-scheme` y `data-theme`):
 - Fondo papel verde-grisáceo suave (`--bg`), tarjetas casi blancas (`--card`), tinta casi negra con sesgo verde (`--ink`), gris cálido para texto secundario (`--muted`).
