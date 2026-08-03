@@ -378,45 +378,47 @@
     render();
   });
 
-  (function gestosVerticales() {
-    const notebook = document.getElementById('notebook');
-    let inicioY = null;
+  (function gestos() {
+    // Un solo punto de partida compartido entre los dos ejes: así, ante un
+    // swipe en diagonal, se decide UNA sola dirección (la de mayor
+    // desplazamiento) en vez de disparar el paso de página y el cambio de
+    // mes a la vez.
+    const UMBRAL_Y = 40;
+    const UMBRAL_X = 60;
+    let inicio = null;
 
-    function empezar(y) { inicioY = y; }
-    function terminar(y) {
-      if (inicioY === null) return;
-      const deltaY = y - inicioY;
-      inicioY = null;
-      const UMBRAL = 40;
-      if (deltaY <= -UMBRAL) moverPagina('arriba');
-      else if (deltaY >= UMBRAL) moverPagina('abajo');
+    function esCampoInteractivo(el) {
+      return !!(el && el.closest && el.closest('input, textarea, select, button, .chip, .anular, [contenteditable]'));
     }
 
-    notebook.addEventListener('touchstart', (e) => empezar(e.touches[0].clientY), { passive: true });
-    notebook.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientY), { passive: true });
+    function empezar(x, y, target) {
+      // El respaldo de mouse no debe dispararse arrastrando dentro de un
+      // campo de texto, un botón o un chip -- eso es una interacción normal
+      // con el formulario, no un gesto de navegación.
+      if (esCampoInteractivo(target)) { inicio = null; return; }
+      inicio = { x, y };
+    }
+
+    function terminar(x, y) {
+      if (inicio === null) return;
+      const deltaX = x - inicio.x;
+      const deltaY = y - inicio.y;
+      inicio = null;
+      if (Math.abs(deltaX) > Math.abs(deltaY)) {
+        if (deltaX <= -UMBRAL_X) cambiarMes(1);
+        else if (deltaX >= UMBRAL_X) cambiarMes(-1);
+      } else {
+        if (deltaY <= -UMBRAL_Y) moverPagina('arriba');
+        else if (deltaY >= UMBRAL_Y) moverPagina('abajo');
+      }
+    }
+
+    document.body.addEventListener('touchstart', (e) => empezar(e.touches[0].clientX, e.touches[0].clientY, e.target), { passive: true });
+    document.body.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientX, e.changedTouches[0].clientY), { passive: true });
 
     // Respaldo para probar con mouse en el navegador de escritorio
-    notebook.addEventListener('mousedown', (e) => empezar(e.clientY));
-    notebook.addEventListener('mouseup', (e) => terminar(e.clientY));
-  })();
-
-  (function gestosHorizontales() {
-    let inicioX = null;
-
-    function empezar(x) { inicioX = x; }
-    function terminar(x) {
-      if (inicioX === null) return;
-      const deltaX = x - inicioX;
-      inicioX = null;
-      const UMBRAL = 60;
-      if (deltaX <= -UMBRAL) cambiarMes(1);
-      else if (deltaX >= UMBRAL) cambiarMes(-1);
-    }
-
-    document.body.addEventListener('touchstart', (e) => empezar(e.touches[0].clientX), { passive: true });
-    document.body.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientX), { passive: true });
-    document.body.addEventListener('mousedown', (e) => empezar(e.clientX));
-    document.body.addEventListener('mouseup', (e) => terminar(e.clientX));
+    document.body.addEventListener('mousedown', (e) => empezar(e.clientX, e.clientY, e.target));
+    document.body.addEventListener('mouseup', (e) => terminar(e.clientX, e.clientY));
   })();
 
   render();
