@@ -17,6 +17,8 @@
   .chip { padding: 8px 12px; border: 1.5px solid #ccc; border-radius: 8px; background: white; }
   .chip.selected { border-color: #1F6F54; background: #e6f2ee; }
   #monto { font-size: 1.4rem; width: 100%; padding: 8px; box-sizing: border-box; }
+  .recibo-preview { margin: 14px 0; padding: 10px; border: 1px solid #ddd; border-radius: 6px; background: #f9f9f9; min-height: 60px; }
+  .recibo-preview pre { margin: 0; font-family: monospace; font-size: 0.9rem; color: #333; }
   #guardarBtn { width: 100%; padding: 12px; margin-top: 10px; }
   #guardarBtn:disabled { opacity: 0.4; }
 </style>
@@ -100,11 +102,13 @@
           <div class="chips" id="chipsPago">
             ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
           </div>
+          <div class="recibo-preview"><pre id="reciboPreview"></pre></div>
           <button id="guardarBtn" disabled>Guardar gasto</button>
         </div>
       `;
       marcarSeleccionActiva();
       actualizarGuardar();
+      actualizarRecibo();
       return;
     }
 
@@ -140,16 +144,42 @@
     render();
   }
 
+  function textoRecibo() {
+    const montoInput = document.getElementById('monto');
+    const monto = montoInput ? parseFloat(montoInput.value) : NaN;
+    const partes = [];
+    if (seleccion.categoria) partes.push(`Categoría: ${seleccion.categoria}`);
+    if (seleccion.pago) partes.push(`Pago: ${seleccion.pago}`);
+    if (monto > 0) partes.push(`Monto: ${moneda(monto)}`);
+    return partes.join('\n');
+  }
+
+  function escribirTexto(el, texto) {
+    clearInterval(el._intervalo);
+    el.textContent = '';
+    let i = 0;
+    el._intervalo = setInterval(() => {
+      el.textContent += texto[i];
+      i += 1;
+      if (i >= texto.length) clearInterval(el._intervalo);
+    }, 18);
+  }
+
+  function actualizarRecibo() {
+    const el = document.getElementById('reciboPreview');
+    if (el) escribirTexto(el, textoRecibo());
+  }
+
   document.getElementById('pagina').addEventListener('click', (e) => {
     const catBtn = e.target.closest('#chipsCategoria .chip');
-    if (catBtn) { seleccion.categoria = catBtn.dataset.cat; marcarSeleccionActiva(); actualizarGuardar(); return; }
+    if (catBtn) { seleccion.categoria = catBtn.dataset.cat; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); return; }
     const pagoBtn = e.target.closest('#chipsPago .chip');
-    if (pagoBtn) { seleccion.pago = pagoBtn.dataset.pago; marcarSeleccionActiva(); actualizarGuardar(); return; }
+    if (pagoBtn) { seleccion.pago = pagoBtn.dataset.pago; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); return; }
     if (e.target.id === 'guardarBtn') guardarGasto();
   });
 
   document.getElementById('pagina').addEventListener('input', (e) => {
-    if (e.target.id === 'monto') actualizarGuardar();
+    if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); }
   });
 
   document.getElementById('btnMesAnterior').addEventListener('click', () => { estado.mesIndex -= 1; estado.posicion = -1; render(); });
