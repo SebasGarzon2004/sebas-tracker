@@ -45,6 +45,7 @@
   .leaf.rebote { animation: rebote .25s ease; }
   #notebook.rebote { animation: rebote .25s ease; }
   @keyframes rebote { 0%,100%{transform:rotateX(0deg);} 50%{transform:rotateX(-12deg);} }
+  #borrarTodo { display: block; margin: 30px auto 0; background: none; border: none; color: #b5473a; font-size: 0.8rem; padding: 8px; }
 </style>
 </head>
 <body>
@@ -65,6 +66,7 @@
     <button id="btnAbajo">▼</button>
     <button id="btnMesSiguiente">Mes ▶</button>
   </div>
+  <button id="borrarTodo">Borrar todos los registros</button>
 
 <script src="logic.js"></script>
 <script>
@@ -146,7 +148,14 @@
         <button id="guardarBtn" disabled>Guardar gasto</button>
       `;
     }
-    return `<div class="hoja-escrita"><p>${contenido.categoria}</p><p>${contenido.pago}</p><p>${moneda(contenido.monto)}</p></div>`;
+    return `
+      <div class="hoja-escrita">
+        <p>${contenido.categoria}</p>
+        <p>${contenido.pago}</p>
+        <p>${moneda(contenido.monto)}</p>
+        <button class="anular" data-id="${contenido.id}">Anular este gasto</button>
+      </div>
+    `;
   }
 
   function marcarSeleccionActiva() {
@@ -249,6 +258,15 @@
     const pagoBtn = e.target.closest('#chipsPago .chip');
     if (pagoBtn) { seleccion.pago = pagoBtn.dataset.pago; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); return; }
     if (e.target.id === 'guardarBtn') guardarGasto();
+    const anularBtn = e.target.closest('.anular');
+    if (!anularBtn) return;
+    if (!confirm('¿Anular este gasto? No se puede deshacer.')) return;
+    const id = Number(anularBtn.dataset.id);
+    const gastos = cargarGastos().filter(g => g.id !== id);
+    guardarGastos(gastos);
+    window._paginaInicial = false;
+    estado.posicion = -1;
+    render();
   });
 
   document.getElementById('notebook').addEventListener('input', (e) => {
@@ -272,6 +290,14 @@
   document.getElementById('btnMesSiguiente').addEventListener('click', () => cambiarMes(1));
   document.getElementById('btnArriba').addEventListener('click', () => moverPagina('arriba'));
   document.getElementById('btnAbajo').addEventListener('click', () => moverPagina('abajo'));
+
+  document.getElementById('borrarTodo').addEventListener('click', () => {
+    if (!confirm('¿Borrar todos los gastos guardados? No se puede deshacer.')) return;
+    guardarGastos([]);
+    estado = { mesIndex: null, posicion: -1 };
+    window._paginaInicial = false;
+    render();
+  });
 
   (function gestosVerticales() {
     const notebook = document.getElementById('notebook');
