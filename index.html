@@ -159,7 +159,11 @@
     btn.disabled = !(monto > 0 && seleccion.categoria && seleccion.pago);
   }
 
+  let animando = false;
+
   function moverPagina(direccion) {
+    if (animando) return;
+    animando = true;
     estado.posicion += (direccion === 'arriba' ? -1 : 1);
     const datos = render();
     const leaf = document.getElementById('leaf');
@@ -182,6 +186,7 @@
       actualizarGuardar();
       actualizarRecibo();
       leaf.removeEventListener('animationend', terminar);
+      animando = false;
     };
     // `animationend` no se dispara si prefers-reduced-motion desactiva la animación
     // (animation: none), así que un timeout de respaldo garantiza que la hoja
@@ -242,8 +247,8 @@
     if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); }
   });
 
-  document.getElementById('btnMesAnterior').addEventListener('click', () => { estado.mesIndex -= 1; estado.posicion = -1; window._paginaInicial = false; render(); });
-  document.getElementById('btnMesSiguiente').addEventListener('click', () => { estado.mesIndex += 1; estado.posicion = -1; window._paginaInicial = false; render(); });
+  document.getElementById('btnMesAnterior').addEventListener('click', () => { if (animando) return; estado.mesIndex -= 1; estado.posicion = -1; window._paginaInicial = false; render(); });
+  document.getElementById('btnMesSiguiente').addEventListener('click', () => { if (animando) return; estado.mesIndex += 1; estado.posicion = -1; window._paginaInicial = false; render(); });
   document.getElementById('btnArriba').addEventListener('click', () => moverPagina('arriba'));
   document.getElementById('btnAbajo').addEventListener('click', () => moverPagina('abajo'));
 
