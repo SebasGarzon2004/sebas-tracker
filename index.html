@@ -47,20 +47,48 @@
   }
   .rounded { font-family: ui-rounded, -apple-system, BlinkMacSystemFont, sans-serif; }
 
-  body { font-family: -apple-system, sans-serif; margin: 0; padding: 16px; max-width: 480px; margin-inline: auto; background: var(--bg); color: var(--ink); }
-  #totales { padding: 14px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 18px; background: var(--card); box-shadow: var(--shadow); }
-  #totales strong { font-size: 1.3rem; }
+  html, body { height: 100%; }
+  html { overscroll-behavior-y: none; }
+  body {
+    font-family: -apple-system, sans-serif; margin: 0; padding: 16px;
+    max-width: 480px; margin-inline: auto; background: var(--bg); color: var(--ink);
+    box-sizing: border-box; overscroll-behavior-y: none;
+    display: flex; flex-direction: column; min-height: 100%;
+  }
+
+  #mesHeader { text-align: center; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; margin: 4px 0 18px; }
+
+  #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 22px; background: var(--card); box-shadow: var(--shadow); }
+  #resumen .resumen-total { font-size: 1.15rem; margin-bottom: 6px; }
+  #resumen .resumen-desglose { color: var(--muted); font-size: 0.85rem; line-height: 1.7; }
+
   #controles { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
   #controles button { padding: 12px 14px; font-size: 1rem; }
   #controles button:disabled { opacity: 0.3; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
-  .chip { padding: 8px 12px; border: 1.5px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
-  .chip.selected { border-color: var(--emerald); background: var(--emerald); color: #fff; }
-  #monto { font-size: 1.4rem; width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 6px; background: var(--card); color: var(--ink); }
-  .recibo-preview { margin: 14px 0; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); min-height: 60px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chip {
+    padding: 10px 16px; border: 1.5px solid var(--line); border-radius: 999px;
+    background: var(--card); color: var(--ink); font-weight: 600; font-size: 0.92rem;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
+  }
+  .chip:active { transform: scale(0.96); }
+  .chip.selected { border-color: var(--emerald); background: var(--emerald); color: #fff; box-shadow: 0 3px 10px rgba(31,111,84,0.35); }
+
+  #monto { font-size: 1.4rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
+  .recibo-preview { margin: 14px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); min-height: 60px; }
   .recibo-preview pre { margin: 0; font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--ink); }
-  #guardarBtn { width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 8px; background: var(--emerald); color: #fff; font-weight: bold; }
-  #guardarBtn:disabled { opacity: 0.4; background: var(--muted); }
+  .recibo-preview pre div { min-height: 1.4em; }
+
+  #guardarBtn {
+    width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 12px;
+    background: var(--emerald); color: #fff; font-weight: 700; font-size: 1rem;
+    letter-spacing: 0.04em; text-transform: uppercase;
+    box-shadow: 0 4px 14px rgba(31,111,84,0.3);
+    transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
+  }
+  #guardarBtn:active:not(:disabled) { transform: scale(0.98); }
+  #guardarBtn:disabled { opacity: 0.4; background: var(--muted); box-shadow: none; }
 
   .masthead { font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px dashed var(--line); }
   .content { font-family: 'Courier New', monospace; }
@@ -73,15 +101,31 @@
   .badge-hogar { background: var(--tag-hogar); }
 
   .spiral { width: 100%; height: 14px; background: repeating-linear-gradient(90deg,#8a6a4e 0 6px, transparent 6px 14px); margin-bottom: -6px; position: relative; z-index: 5; }
-  #notebook { position: relative; width: 100%; min-height: 220px; perspective: 1400px; }
+  #notebook {
+    position: relative; width: 100%; perspective: 1400px;
+    height: var(--alto-notebook, 220px);
+    transition: height .25s ease;
+    touch-action: none;
+  }
+  #notebook.mes-saliendo, #notebook.mes-entrando, #notebook.mes-mostrar { transition: transform .22s ease, opacity .22s ease; }
+  #notebook.mes-saliendo.izq { opacity: 0; transform: translateX(-18px); }
+  #notebook.mes-saliendo.der { opacity: 0; transform: translateX(18px); }
+  #notebook.mes-entrando { transition: none !important; }
+  #notebook.mes-entrando.izq { opacity: 0; transform: translateX(18px); }
+  #notebook.mes-entrando.der { opacity: 0; transform: translateX(-18px); }
+  #notebook.mes-mostrar { opacity: 1; transform: translateX(0); }
+  @media (prefers-reduced-motion: reduce) {
+    #notebook.mes-saliendo, #notebook.mes-entrando, #notebook.mes-mostrar { transition: none !important; transform: none !important; opacity: 1 !important; }
+  }
+
   .pagina-cara, .leaf, .face { position: absolute; inset: 0; border-radius: 6px; }
-  .pagina-cara { background: var(--card); border: 1px solid var(--line); padding: 18px; box-sizing: border-box; box-shadow: var(--shadow); }
+  .pagina-cara { background: var(--card); border: 1px solid var(--line); padding: 18px; box-sizing: border-box; box-shadow: var(--shadow); overflow: auto; }
   .pagina-cara.pila { pointer-events: none; }
   .pagina-cara.pila-1 { transform: rotate(-1.5deg) translate(-3px, 2px); z-index: 0; }
   .pagina-cara.pila-2 { transform: rotate(1.5deg) translate(3px, 4px); z-index: 0; }
   #pageUnder { z-index: 1; }
   .leaf { transform-style: preserve-3d; transform-origin: top center; z-index: 2; }
-  .face { backface-visibility: hidden; border: 1px solid var(--line); box-sizing: border-box; padding: 18px; box-shadow: var(--shadow); }
+  .face { backface-visibility: hidden; border: 1px solid var(--line); box-sizing: border-box; padding: 18px; box-shadow: var(--shadow); overflow: auto; }
   .face-front { background: var(--card); }
   .face-back { background: var(--card); transform: rotateX(180deg); }
   .crease-shadow { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.4) 50%, transparent 60%); opacity: 0; pointer-events: none; }
@@ -102,12 +146,19 @@
   .leaf.rebote { animation: rebote .25s ease; }
   #notebook.rebote { animation: rebote .25s ease; }
   @keyframes rebote { 0%,100%{transform:rotateX(0deg);} 50%{transform:rotateX(-12deg);} }
-  #borrarTodo { display: block; margin: 30px auto 0; background: none; border: none; color: var(--coral); font-size: 0.8rem; padding: 8px; }
-  .anular { background: none; border: 1px solid var(--coral); color: var(--coral); border-radius: 6px; padding: 8px 12px; font-weight: bold; }
+
+  #medidor {
+    position: absolute; visibility: hidden; pointer-events: none; top: -9999px; left: 0;
+    box-sizing: border-box; border: 1px solid var(--line); padding: 18px; border-radius: 6px;
+  }
+
+  #borrarTodo { display: block; margin: 24px auto 0; background: none; border: none; color: var(--coral); font-size: 0.8rem; padding: 8px; }
+  .anular { background: none; border: 1.5px solid var(--coral); color: var(--coral); border-radius: 10px; padding: 10px 14px; font-weight: 700; margin-top: 12px; }
+  .anular:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
-  <div id="totales"></div>
+  <h1 id="mesHeader" class="rounded"></h1>
   <div id="notebook">
     <div class="spiral"></div>
     <div class="pagina-cara pila pila-2" aria-hidden="true"></div>
@@ -120,6 +171,7 @@
     </div>
     <div id="stamp" class="stamp">GUARDADO</div>
   </div>
+  <div id="medidor"></div>
   <div id="controles">
     <button id="btnMesAnterior">◀ Mes</button>
     <button id="btnArriba">▲</button>
@@ -127,6 +179,7 @@
     <button id="btnMesSiguiente">Mes ▶</button>
   </div>
   <button id="borrarTodo">Borrar todos los registros</button>
+  <div id="resumen"></div>
 
 <script src="logic.js"></script>
 <script>
@@ -138,6 +191,15 @@
   function mesActualKey() { return mesKeyDeFecha(new Date().toISOString()); }
 
   let estado = { mesIndex: null, posicion: -1 };
+
+  function ajustarAltura(html) {
+    const notebook = document.getElementById('notebook');
+    const medidor = document.getElementById('medidor');
+    medidor.style.width = notebook.clientWidth + 'px';
+    medidor.innerHTML = html;
+    const alto = Math.max(medidor.offsetHeight, 160);
+    notebook.style.setProperty('--alto-notebook', alto + 'px');
+  }
 
   function render() {
     const gastos = cargarGastos();
@@ -155,10 +217,10 @@
     const paginas = obtenerPaginas(gastosDelMes, esMesActual);
     estado.posicion = clamp(estado.posicion, -1, paginas.length - 1);
 
-    document.getElementById('totales').innerHTML = `
-      <strong class="rounded">${nombreMes(mesKey)}</strong><br>
-      Total: <span class="rounded">${moneda(resumen.total)}</span><br>
-      ${CATEGORIAS.map(cat => `${cat}: ${moneda(resumen.porCategoria[cat])}`).join(' · ')}
+    document.getElementById('mesHeader').textContent = nombreMes(mesKey);
+    document.getElementById('resumen').innerHTML = `
+      <div class="resumen-total rounded"><strong>Total: ${moneda(resumen.total)}</strong></div>
+      <div class="resumen-desglose">${CATEGORIAS.map(cat => `${cat}: ${moneda(resumen.porCategoria[cat])}`).join(' · ')}</div>
     `;
 
     const contenidoActual = estado.posicion === -1 ? 'portada' : paginas[estado.posicion];
@@ -170,6 +232,7 @@
       window._paginaInicial = true;
     }
 
+    ajustarAltura(html);
     marcarSeleccionActiva();
     actualizarGuardar();
     actualizarRecibo();
@@ -305,16 +368,6 @@
     setTimeout(() => moverPagina('abajo'), 250);
   }
 
-  function textoRecibo() {
-    const montoInput = document.getElementById('monto');
-    const monto = montoInput ? parseFloat(montoInput.value) : NaN;
-    const partes = [];
-    if (seleccion.categoria) partes.push(`Categoría: ${seleccion.categoria}`);
-    if (seleccion.pago) partes.push(`Pago: ${seleccion.pago}`);
-    if (monto > 0) partes.push(`Monto: ${moneda(monto)}`);
-    return partes.join('\n');
-  }
-
   function escribirTexto(el, texto) {
     clearInterval(el._intervalo);
     el.textContent = '';
@@ -326,9 +379,51 @@
     }, 18);
   }
 
+  // Cada línea del recibo (categoría, pago, monto) se anima con máquina de
+  // escribir SOLO la primera vez que aparece. Si el usuario cambia de opinión
+  // y vuelve a tocar un chip ya elegido, el texto de esa línea se reemplaza
+  // al instante, sin reiniciar la animación completa.
+  let lineasEscritas = {};
+
   function actualizarRecibo() {
     const el = document.getElementById('reciboPreview');
-    if (el) escribirTexto(el, textoRecibo());
+    if (!el) return;
+    if (!el.dataset.inicializado) {
+      lineasEscritas = {};
+      el.innerHTML = '';
+      ['categoria', 'pago', 'monto'].forEach(key => {
+        const linea = document.createElement('div');
+        linea.dataset.linea = key;
+        linea.style.display = 'none';
+        el.appendChild(linea);
+      });
+      el.dataset.inicializado = '1';
+    }
+
+    const montoInput = document.getElementById('monto');
+    const monto = montoInput ? parseFloat(montoInput.value) : NaN;
+    const valores = {
+      categoria: seleccion.categoria ? `Categoría: ${seleccion.categoria}` : null,
+      pago: seleccion.pago ? `Pago: ${seleccion.pago}` : null,
+      monto: monto > 0 ? `Monto: ${moneda(monto)}` : null,
+    };
+
+    Object.keys(valores).forEach(key => {
+      const linea = el.querySelector(`[data-linea="${key}"]`);
+      const texto = valores[key];
+      if (!texto) {
+        linea.style.display = 'none';
+        linea.textContent = '';
+        delete lineasEscritas[key];
+        return;
+      }
+      linea.style.display = '';
+      if (lineasEscritas[key] !== texto) {
+        if (!lineasEscritas[key]) escribirTexto(linea, texto);
+        else linea.textContent = texto;
+        lineasEscritas[key] = texto;
+      }
+    });
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
@@ -354,15 +449,41 @@
 
   function cambiarMes(delta) {
     if (animando) return;
+    const notebook = document.getElementById('notebook');
+    const gastos = cargarGastos();
+    const gastosPorMes = agruparPorMes(gastos);
+    const meses = mesesDisponibles(gastosPorMes, mesActualKey());
     const mesIndexAnterior = estado.mesIndex;
-    estado.mesIndex += delta;
-    estado.posicion = -1;
-    window._paginaInicial = false;
-    render();
-    if (estado.mesIndex === mesIndexAnterior) {
-      const notebook = document.getElementById('notebook');
+    const nuevoIndex = clamp(mesIndexAnterior + delta, 0, meses.length - 1);
+
+    if (nuevoIndex === mesIndexAnterior) {
       notebook.classList.remove('rebote'); void notebook.offsetWidth; notebook.classList.add('rebote');
+      return;
     }
+
+    animando = true;
+    const direccion = delta > 0 ? 'izq' : 'der';
+    notebook.classList.remove('mes-mostrar');
+    notebook.classList.add('mes-saliendo', direccion);
+
+    setTimeout(() => {
+      estado.mesIndex = nuevoIndex;
+      estado.posicion = -1;
+      window._paginaInicial = false;
+      render();
+
+      notebook.classList.remove('mes-saliendo');
+      notebook.classList.add('mes-entrando', direccion);
+      void notebook.offsetWidth;
+      requestAnimationFrame(() => {
+        notebook.classList.remove('mes-entrando');
+        notebook.classList.add('mes-mostrar');
+      });
+      setTimeout(() => {
+        notebook.classList.remove(direccion, 'mes-mostrar');
+        animando = false;
+      }, 240);
+    }, 200);
   }
 
   document.getElementById('btnMesAnterior').addEventListener('click', () => cambiarMes(-1));
@@ -386,6 +507,7 @@
     const UMBRAL_Y = 40;
     const UMBRAL_X = 60;
     let inicio = null;
+    let arrastrando = false;
 
     function esCampoInteractivo(el) {
       return !!(el && el.closest && el.closest('input, textarea, select, button, .chip, .anular, [contenteditable]'));
@@ -395,11 +517,13 @@
       // El respaldo de mouse no debe dispararse arrastrando dentro de un
       // campo de texto, un botón o un chip -- eso es una interacción normal
       // con el formulario, no un gesto de navegación.
-      if (esCampoInteractivo(target)) { inicio = null; return; }
+      if (esCampoInteractivo(target)) { inicio = null; arrastrando = false; return; }
       inicio = { x, y };
+      arrastrando = true;
     }
 
     function terminar(x, y) {
+      arrastrando = false;
       if (inicio === null) return;
       const deltaX = x - inicio.x;
       const deltaY = y - inicio.y;
@@ -413,12 +537,19 @@
       }
     }
 
-    document.body.addEventListener('touchstart', (e) => empezar(e.touches[0].clientX, e.touches[0].clientY, e.target), { passive: true });
-    document.body.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientX, e.changedTouches[0].clientY), { passive: true });
+    const notebook = document.getElementById('notebook');
+    // Los gestos quedan acotados al cuaderno (no a toda la página). Con
+    // `touch-action: none` en #notebook más este preventDefault en
+    // touchmove, Safari deja de interpretar el arrastre como scroll/rebote
+    // elástico de la página -- eso era lo que a veces se sentía como si
+    // Safari "recargara" en vez de pasar la hoja.
+    notebook.addEventListener('touchstart', (e) => empezar(e.touches[0].clientX, e.touches[0].clientY, e.target), { passive: true });
+    notebook.addEventListener('touchmove', (e) => { if (arrastrando) e.preventDefault(); }, { passive: false });
+    notebook.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientX, e.changedTouches[0].clientY));
 
     // Respaldo para probar con mouse en el navegador de escritorio
-    document.body.addEventListener('mousedown', (e) => empezar(e.clientX, e.clientY, e.target));
-    document.body.addEventListener('mouseup', (e) => terminar(e.clientX, e.clientY));
+    notebook.addEventListener('mousedown', (e) => empezar(e.clientX, e.clientY, e.target));
+    document.addEventListener('mouseup', (e) => terminar(e.clientX, e.clientY));
   })();
 
   render();
