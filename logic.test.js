@@ -26,3 +26,33 @@ test('mesesDisponibles incluye siempre el mes actual, incluso sin gastos', () =>
   assert.deepStrictEqual(mesesDisponibles(grupos, '2026-08'), ['2026-06', '2026-08']);
   assert.deepStrictEqual(mesesDisponibles(grupos, '2026-09'), ['2026-06', '2026-08', '2026-09']);
 });
+
+const { calcularResumenMes, obtenerPaginas, clamp } = require('./logic.js');
+
+test('calcularResumenMes suma el total y el desglose por categoría', () => {
+  const gastos = [
+    { id: 1, monto: 1000, categoria: 'Hogar', pago: 'Efectivo', fecha: '2026-08-01T10:00:00.000Z' },
+    { id: 2, monto: 2000, categoria: 'Hogar', pago: 'BreB', fecha: '2026-08-02T10:00:00.000Z' },
+    { id: 3, monto: 500, categoria: 'Salidas', pago: 'Efectivo', fecha: '2026-08-03T10:00:00.000Z' },
+  ];
+  const resumen = calcularResumenMes(gastos);
+  assert.strictEqual(resumen.total, 3500);
+  assert.strictEqual(resumen.porCategoria.Hogar, 3000);
+  assert.strictEqual(resumen.porCategoria.Salidas, 500);
+  assert.strictEqual(resumen.porCategoria.Shaun, 0, 'las categorías sin gastos quedan en 0, no ausentes');
+  assert.strictEqual(resumen.porCategoria.Swift, 0);
+  assert.strictEqual(resumen.porCategoria['Gastos Personales'], 0);
+});
+
+test('obtenerPaginas antepone la hoja en blanco solo en el mes actual', () => {
+  const gastos = [{ id: 1, monto: 100, categoria: 'Hogar', pago: 'Efectivo', fecha: '2026-08-01T10:00:00.000Z' }];
+  assert.deepStrictEqual(obtenerPaginas(gastos, true), ['blanco', gastos[0]]);
+  assert.deepStrictEqual(obtenerPaginas(gastos, false), [gastos[0]]);
+  assert.deepStrictEqual(obtenerPaginas([], true), ['blanco']);
+});
+
+test('clamp limita un valor entre un mínimo y un máximo', () => {
+  assert.strictEqual(clamp(5, 0, 3), 3);
+  assert.strictEqual(clamp(-2, 0, 3), 0);
+  assert.strictEqual(clamp(2, 0, 3), 2);
+});

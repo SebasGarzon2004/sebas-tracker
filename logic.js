@@ -24,6 +24,31 @@ function mesesDisponibles(gastosPorMes, mesActualKey) {
   return Array.from(keys).sort();
 }
 
+const CATEGORIAS = ['Shaun', 'Swift', 'Salidas', 'Gastos Personales', 'Hogar'];
+
+function calcularResumenMes(gastosDelMes) {
+  const porCategoria = {};
+  for (const cat of CATEGORIAS) porCategoria[cat] = 0;
+  let total = 0;
+  for (const g of gastosDelMes) {
+    total += g.monto;
+    porCategoria[g.categoria] = (porCategoria[g.categoria] || 0) + g.monto;
+  }
+  return { total, porCategoria };
+}
+
+function obtenerPaginas(gastosDelMes, esMesActual) {
+  return esMesActual ? ['blanco', ...gastosDelMes] : [...gastosDelMes];
+}
+
+function clamp(valor, minimo, maximo) {
+  return Math.max(minimo, Math.min(maximo, valor));
+}
+
 if (typeof module !== 'undefined') {
-  module.exports = { mesKeyDeFecha, agruparPorMes, mesesDisponibles };
+  module.exports = {
+    CATEGORIAS,
+    mesKeyDeFecha, agruparPorMes, mesesDisponibles,
+    calcularResumenMes, obtenerPaginas, clamp
+  };
 }
