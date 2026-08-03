@@ -105,11 +105,11 @@
   .badge-gp { background: var(--tag-gp); }
   .badge-hogar { background: var(--tag-hogar); }
   .hoja-escrita { border-left: 5px solid transparent; padding-left: 13px; margin: -18px -18px -18px -13px; padding-top: 0; padding-right: 0; padding-bottom: 0; }
-  .hoja-escrita.badge-shaun { border-left-color: var(--tag-shaun); }
-  .hoja-escrita.badge-swift { border-left-color: var(--tag-swift); }
-  .hoja-escrita.badge-salidas { border-left-color: var(--tag-salidas); }
-  .hoja-escrita.badge-gp { border-left-color: var(--tag-gp); }
-  .hoja-escrita.badge-hogar { border-left-color: var(--tag-hogar); }
+  .hoja-escrita.borde-shaun { border-left-color: var(--tag-shaun); }
+  .hoja-escrita.borde-swift { border-left-color: var(--tag-swift); }
+  .hoja-escrita.borde-salidas { border-left-color: var(--tag-salidas); }
+  .hoja-escrita.borde-gp { border-left-color: var(--tag-gp); }
+  .hoja-escrita.borde-hogar { border-left-color: var(--tag-hogar); }
 
   .spiral { width: 100%; height: 14px; background: repeating-linear-gradient(90deg,#8a6a4e 0 6px, transparent 6px 14px); margin-bottom: -6px; position: relative; z-index: 5; }
   #notebook {
@@ -312,9 +312,10 @@
       `;
     }
     const badgeClase = BADGE_CATEGORIA[contenido.categoria] || 'badge-hogar';
+    const bordeClase = badgeClase.replace('badge-', 'borde-');
     const iniciales = INICIALES_CATEGORIA[contenido.categoria] || '?';
     return `
-      <div class="hoja-escrita ${badgeClase}">
+      <div class="hoja-escrita ${bordeClase}">
         <div class="masthead rounded">Recibo</div>
         <p class="monto-grande rounded">${moneda(contenido.monto)}</p>
         <p class="content detalle-secundario"><span class="badge ${badgeClase}">${iniciales}</span>${contenido.categoria}</p>
@@ -436,6 +437,7 @@
       const linea = el.querySelector(`[data-linea="${key}"]`);
       const texto = valores[key];
       if (!texto) {
+        clearInterval(linea._intervalo);
         linea.style.display = 'none';
         linea.textContent = '';
         delete lineasEscritas[key];
@@ -444,7 +446,15 @@
       linea.style.display = '';
       if (lineasEscritas[key] !== texto) {
         if (!lineasEscritas[key]) escribirTexto(linea, texto);
-        else linea.textContent = texto;
+        else {
+          // El reemplazo instantáneo también debe cortar el intervalo de la
+          // animación de máquina de escribir si todavía estaba corriendo,
+          // o sus caracteres pendientes se siguen agregando por encima del
+          // texto nuevo (se vio como texto pegado/duplicado al cambiar de
+          // categoría muy rápido).
+          clearInterval(linea._intervalo);
+          linea.textContent = texto;
+        }
         lineasEscritas[key] = texto;
       }
     });
