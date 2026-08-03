@@ -77,8 +77,9 @@
   .pagina-cara, .leaf, .face { position: absolute; inset: 0; border-radius: 6px; }
   .pagina-cara { background: var(--card); border: 1px solid var(--line); padding: 18px; box-sizing: border-box; box-shadow: var(--shadow); }
   .pagina-cara.pila { pointer-events: none; }
-  .pagina-cara.pila-1 { transform: rotate(-1.5deg) translate(-3px, 2px); z-index: 1; }
+  .pagina-cara.pila-1 { transform: rotate(-1.5deg) translate(-3px, 2px); z-index: 0; }
   .pagina-cara.pila-2 { transform: rotate(1.5deg) translate(3px, 4px); z-index: 0; }
+  #pageUnder { z-index: 1; }
   .leaf { transform-style: preserve-3d; transform-origin: top center; z-index: 2; }
   .face { backface-visibility: hidden; border: 1px solid var(--line); box-sizing: border-box; padding: 18px; box-shadow: var(--shadow); }
   .face-front { background: var(--card); }
