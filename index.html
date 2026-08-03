@@ -96,7 +96,9 @@
   @keyframes crease { 0%{opacity:0;} 45%{opacity:1;} 55%{opacity:1;} 100%{opacity:0;} }
   @media (prefers-reduced-motion: reduce) {
     .leaf.flip-up, .leaf.flip-down, .leaf.flip-up .crease-shadow, .leaf.flip-down .crease-shadow { animation: none; }
+    .stamp.show { animation: stampFade .9s ease forwards; }
   }
+  @keyframes stampFade { 0%{opacity:0;} 20%{opacity:1;} 80%{opacity:1;} 100%{opacity:0;} }
   .leaf.rebote { animation: rebote .25s ease; }
   #notebook.rebote { animation: rebote .25s ease; }
   @keyframes rebote { 0%,100%{transform:rotateX(0deg);} 50%{transform:rotateX(-12deg);} }
