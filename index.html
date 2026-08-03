@@ -13,6 +13,12 @@
   #controles { display: flex; justify-content: space-between; margin-top: 16px; gap: 8px; }
   #controles button { padding: 12px 14px; font-size: 1rem; }
   #controles button:disabled { opacity: 0.3; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .chip { padding: 8px 12px; border: 1.5px solid #ccc; border-radius: 8px; background: white; }
+  .chip.selected { border-color: #1F6F54; background: #e6f2ee; }
+  #monto { font-size: 1.4rem; width: 100%; padding: 8px; box-sizing: border-box; }
+  #guardarBtn { width: 100%; padding: 12px; margin-top: 10px; }
+  #guardarBtn:disabled { opacity: 0.4; }
 </style>
 </head>
 <body>
@@ -59,15 +65,7 @@
       ${CATEGORIAS.map(cat => `${cat}: ${moneda(resumen.porCategoria[cat])}`).join(' · ')}
     `;
 
-    const pagina = document.getElementById('pagina');
-    if (estado.posicion === -1) {
-      pagina.textContent = `Portada de ${nombreMes(mesKey)} — total ${moneda(resumen.total)}`;
-    } else {
-      const contenido = paginas[estado.posicion];
-      pagina.textContent = contenido === 'blanco'
-        ? 'Hoja en blanco — aquí se registra el gasto nuevo (llega en la Task 4)'
-        : `${contenido.categoria} · ${contenido.pago} · ${moneda(contenido.monto)}`;
-    }
+    renderPagina(estado.posicion === -1 ? 'portada' : paginas[estado.posicion], mesKey, resumen);
 
     document.getElementById('btnMesAnterior').disabled = estado.mesIndex === 0;
     document.getElementById('btnMesSiguiente').disabled = estado.mesIndex === meses.length - 1;
@@ -80,6 +78,79 @@
     const [anio, mes] = mesKey.split('-').map(Number);
     return `${NOMBRES[mes - 1]} ${anio}`;
   }
+
+  const PAGOS = ['BreB', 'RappiCard', 'Efectivo'];
+  let seleccion = { categoria: null, pago: null };
+
+  function renderPagina(contenido, mesKey, resumen) {
+    const pagina = document.getElementById('pagina');
+
+    if (contenido === 'portada') {
+      pagina.innerHTML = `<div class="portada"><h2>${nombreMes(mesKey)}</h2><p>Total: ${moneda(resumen.total)}</p></div>`;
+      return;
+    }
+
+    if (contenido === 'blanco') {
+      pagina.innerHTML = `
+        <div class="hoja-blanco">
+          <input type="number" id="monto" inputmode="decimal" placeholder="Monto">
+          <div class="chips" id="chipsCategoria">
+            ${CATEGORIAS.map(c => `<button type="button" class="chip" data-cat="${c}">${c}</button>`).join('')}
+          </div>
+          <div class="chips" id="chipsPago">
+            ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
+          </div>
+          <button id="guardarBtn" disabled>Guardar gasto</button>
+        </div>
+      `;
+      marcarSeleccionActiva();
+      actualizarGuardar();
+      return;
+    }
+
+    pagina.innerHTML = `
+      <div class="hoja-escrita">
+        <p>${contenido.categoria}</p>
+        <p>${contenido.pago}</p>
+        <p>${moneda(contenido.monto)}</p>
+      </div>
+    `;
+  }
+
+  function marcarSeleccionActiva() {
+    document.querySelectorAll('#chipsCategoria .chip').forEach(b => b.classList.toggle('selected', b.dataset.cat === seleccion.categoria));
+    document.querySelectorAll('#chipsPago .chip').forEach(b => b.classList.toggle('selected', b.dataset.pago === seleccion.pago));
+  }
+
+  function actualizarGuardar() {
+    const btn = document.getElementById('guardarBtn');
+    const montoInput = document.getElementById('monto');
+    if (!btn || !montoInput) return;
+    const monto = parseFloat(montoInput.value);
+    btn.disabled = !(monto > 0 && seleccion.categoria && seleccion.pago);
+  }
+
+  function guardarGasto() {
+    const monto = parseFloat(document.getElementById('monto').value);
+    if (!(monto > 0) || !seleccion.categoria || !seleccion.pago) return;
+    const gastos = cargarGastos();
+    gastos.push({ id: Date.now(), monto, categoria: seleccion.categoria, pago: seleccion.pago, fecha: new Date().toISOString() });
+    guardarGastos(gastos);
+    seleccion = { categoria: null, pago: null };
+    render();
+  }
+
+  document.getElementById('pagina').addEventListener('click', (e) => {
+    const catBtn = e.target.closest('#chipsCategoria .chip');
+    if (catBtn) { seleccion.categoria = catBtn.dataset.cat; marcarSeleccionActiva(); actualizarGuardar(); return; }
+    const pagoBtn = e.target.closest('#chipsPago .chip');
+    if (pagoBtn) { seleccion.pago = pagoBtn.dataset.pago; marcarSeleccionActiva(); actualizarGuardar(); return; }
+    if (e.target.id === 'guardarBtn') guardarGasto();
+  });
+
+  document.getElementById('pagina').addEventListener('input', (e) => {
+    if (e.target.id === 'monto') actualizarGuardar();
+  });
 
   document.getElementById('btnMesAnterior').addEventListener('click', () => { estado.mesIndex -= 1; estado.posicion = -1; render(); });
   document.getElementById('btnMesSiguiente').addEventListener('click', () => { estado.mesIndex += 1; estado.posicion = -1; render(); });
