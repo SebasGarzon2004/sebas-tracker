@@ -56,3 +56,27 @@ test('clamp limita un valor entre un mínimo y un máximo', () => {
   assert.strictEqual(clamp(-2, 0, 3), 0);
   assert.strictEqual(clamp(2, 0, 3), 2);
 });
+
+const { anguloDesdeArrastre, debeCompletarDoblez, opacidadPliegue } = require('./logic.js');
+
+test('anguloDesdeArrastre convierte distancia arrastrada en grados, acotado a 180', () => {
+  assert.strictEqual(anguloDesdeArrastre(0, 220), 0);
+  assert.strictEqual(anguloDesdeArrastre(110, 220), 90);
+  assert.strictEqual(anguloDesdeArrastre(220, 220), 180);
+  assert.strictEqual(anguloDesdeArrastre(500, 220), 180, 'no debe pasarse de 180 aunque se arrastre más que el alto');
+  assert.strictEqual(anguloDesdeArrastre(50, 0), 0, 'con alto 0 no debe dividir por cero');
+});
+
+test('debeCompletarDoblez se cumple desde la mitad del giro (90 grados) en adelante', () => {
+  assert.strictEqual(debeCompletarDoblez(89), false);
+  assert.strictEqual(debeCompletarDoblez(90), true);
+  assert.strictEqual(debeCompletarDoblez(180), true);
+  assert.strictEqual(debeCompletarDoblez(0), false);
+});
+
+test('opacidadPliegue crece hacia la mitad del giro y baja cerca de los extremos', () => {
+  assert.strictEqual(opacidadPliegue(0), 0);
+  assert.ok(Math.abs(opacidadPliegue(90) - 1) < 0.0001, 'a 90 grados la sombra debe estar en su punto máximo');
+  assert.ok(opacidadPliegue(170) < opacidadPliegue(90), 'cerca de 180 grados la sombra vuelve a bajar');
+  assert.ok(Math.abs(opacidadPliegue(180)) < 0.0001);
+});

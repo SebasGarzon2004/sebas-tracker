@@ -45,10 +45,25 @@ function clamp(valor, minimo, maximo) {
   return Math.max(minimo, Math.min(maximo, valor));
 }
 
+function anguloDesdeArrastre(deltaAbsoluto, altoPx) {
+  if (!altoPx) return 0;
+  return clamp((deltaAbsoluto / altoPx) * 180, 0, 180);
+}
+
+function debeCompletarDoblez(anguloAbsoluto) {
+  return anguloAbsoluto >= 90;
+}
+
+function opacidadPliegue(anguloAbsoluto) {
+  const grados = clamp(anguloAbsoluto, 0, 180);
+  return Math.sin(grados * Math.PI / 180);
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     CATEGORIAS,
     mesKeyDeFecha, agruparPorMes, mesesDisponibles,
-    calcularResumenMes, obtenerPaginas, clamp
+    calcularResumenMes, obtenerPaginas, clamp,
+    anguloDesdeArrastre, debeCompletarDoblez, opacidadPliegue
   };
 }
