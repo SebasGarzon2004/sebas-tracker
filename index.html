@@ -9,7 +9,7 @@
 <style>
   body { font-family: -apple-system, sans-serif; margin: 0; padding: 16px; max-width: 480px; margin-inline: auto; }
   #totales { padding: 14px; border: 1px solid #ccc; border-radius: 10px; margin-bottom: 18px; }
-  #controles { display: flex; justify-content: space-between; margin-top: 16px; gap: 8px; }
+  #controles { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
   #controles button { padding: 12px 14px; font-size: 1rem; }
   #controles button:disabled { opacity: 0.3; }
   .chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
@@ -42,6 +42,9 @@
   @media (prefers-reduced-motion: reduce) {
     .leaf.flip-up, .leaf.flip-down, .leaf.flip-up .crease-shadow, .leaf.flip-down .crease-shadow { animation: none; }
   }
+  .leaf.rebote { animation: rebote .25s ease; }
+  #notebook.rebote { animation: rebote .25s ease; }
+  @keyframes rebote { 0%,100%{transform:rotateX(0deg);} 50%{transform:rotateX(-12deg);} }
 </style>
 </head>
 <body>
@@ -163,10 +166,15 @@
 
   function moverPagina(direccion) {
     if (animando) return;
-    animando = true;
+    const posicionAnterior = estado.posicion;
     estado.posicion += (direccion === 'arriba' ? -1 : 1);
     const datos = render();
     const leaf = document.getElementById('leaf');
+    if (estado.posicion === posicionAnterior) {
+      leaf.classList.remove('rebote'); void leaf.offsetWidth; leaf.classList.add('rebote');
+      return;
+    }
+    animando = true;
     leaf.classList.remove('flip-up', 'flip-down');
     void leaf.offsetWidth;
     document.getElementById('pageUnder').innerHTML = datos.html;
@@ -247,10 +255,64 @@
     if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); }
   });
 
-  document.getElementById('btnMesAnterior').addEventListener('click', () => { if (animando) return; estado.mesIndex -= 1; estado.posicion = -1; window._paginaInicial = false; render(); });
-  document.getElementById('btnMesSiguiente').addEventListener('click', () => { if (animando) return; estado.mesIndex += 1; estado.posicion = -1; window._paginaInicial = false; render(); });
+  function cambiarMes(delta) {
+    if (animando) return;
+    const mesIndexAnterior = estado.mesIndex;
+    estado.mesIndex += delta;
+    estado.posicion = -1;
+    window._paginaInicial = false;
+    render();
+    if (estado.mesIndex === mesIndexAnterior) {
+      const notebook = document.getElementById('notebook');
+      notebook.classList.remove('rebote'); void notebook.offsetWidth; notebook.classList.add('rebote');
+    }
+  }
+
+  document.getElementById('btnMesAnterior').addEventListener('click', () => cambiarMes(-1));
+  document.getElementById('btnMesSiguiente').addEventListener('click', () => cambiarMes(1));
   document.getElementById('btnArriba').addEventListener('click', () => moverPagina('arriba'));
   document.getElementById('btnAbajo').addEventListener('click', () => moverPagina('abajo'));
+
+  (function gestosVerticales() {
+    const notebook = document.getElementById('notebook');
+    let inicioY = null;
+
+    function empezar(y) { inicioY = y; }
+    function terminar(y) {
+      if (inicioY === null) return;
+      const deltaY = y - inicioY;
+      inicioY = null;
+      const UMBRAL = 40;
+      if (deltaY <= -UMBRAL) moverPagina('arriba');
+      else if (deltaY >= UMBRAL) moverPagina('abajo');
+    }
+
+    notebook.addEventListener('touchstart', (e) => empezar(e.touches[0].clientY), { passive: true });
+    notebook.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientY), { passive: true });
+
+    // Respaldo para probar con mouse en el navegador de escritorio
+    notebook.addEventListener('mousedown', (e) => empezar(e.clientY));
+    notebook.addEventListener('mouseup', (e) => terminar(e.clientY));
+  })();
+
+  (function gestosHorizontales() {
+    let inicioX = null;
+
+    function empezar(x) { inicioX = x; }
+    function terminar(x) {
+      if (inicioX === null) return;
+      const deltaX = x - inicioX;
+      inicioX = null;
+      const UMBRAL = 60;
+      if (deltaX <= -UMBRAL) cambiarMes(1);
+      else if (deltaX >= UMBRAL) cambiarMes(-1);
+    }
+
+    document.body.addEventListener('touchstart', (e) => empezar(e.touches[0].clientX), { passive: true });
+    document.body.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientX), { passive: true });
+    document.body.addEventListener('mousedown', (e) => empezar(e.clientX));
+    document.body.addEventListener('mouseup', (e) => terminar(e.clientX));
+  })();
 
   render();
 </script>
