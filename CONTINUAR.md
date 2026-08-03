@@ -26,17 +26,16 @@ Cada tarea pasó por un subagente que la implementó y otro que la revisó; dos 
 
 ## Qué falta — el paso inmediato al volver
 
-Antes de que cerraras el computador, lancé la **revisión final de toda la rama junta** (no solo tarea por tarea) con el modelo más capaz que tengo disponible. Esa revisión corre en segundo plano y probablemente ya terminó o esté por terminar cuando retomes.
+La revisión final que se lanzó en segundo plano en la sesión anterior se perdió al cerrar esa sesión (no dejó ningún resultado en `.superpowers/sdd/`, solo quedaron los diffs que se enviaron a revisar). Ryan retomó con los 4 hallazgos menores ya documentados y decidió sobre cada uno:
 
-**Lo primero que debe hacer Ryan al continuar:**
+1. **Corregido**: el sello "GUARDADO" ahora respeta `prefers-reduced-motion` -- con esa preferencia activa se muestra con un fundido simple de opacidad en vez del zoom+giro.
+2. **Corregido**: los dos gestos (pasar página, cambiar de mes) ahora comparten un solo punto de partida y, al soltar, se decide un solo eje según cuál tuvo mayor desplazamiento -- un swipe en diagonal ya no dispara los dos a la vez.
+3. **Corregido**: el respaldo de mouse (solo para probar en escritorio) ya no arranca un gesto si el clic empieza dentro de un campo de texto, botón o chip.
+4. **Dejado como está**: `color-scheme: light dark` y el `text-transform: uppercase` de `.masthead`. El primero no es CSS muerto -- el plan sí pedía modo claro/oscuro y esa propiedad es la que le dice al navegador que adapte controles nativos (scrollbars, etc.) al tema; quitarla sería un paso atrás. El segundo es una decisión estética menor y coherente con el tema de recibo (los recibos de caja registradora suelen imprimirse en mayúsculas); no rompe nada ni contradice el spec.
 
-1. Revisar si esa revisión final ya devolvió resultado (llegará como una notificación de tarea de fondo). Si ya está, hay que decidir con esos hallazgos qué se corrige antes de cerrar la rama.
-2. Hay algunos hallazgos menores ya identificados en revisiones anteriores, pendientes de que la revisión final decida si bloquean o no:
-   - El sello "GUARDADO" no respeta `prefers-reduced-motion` (el doblez de página sí lo respeta, el sello no).
-   - Un swipe en diagonal podría disparar a la vez el paso de página y el cambio de mes (no hay detección de eje dominante).
-   - El respaldo de mouse para probar en escritorio está pegado a toda la página y podría dispararse por accidente arrastrando dentro de un campo de texto.
-   - Un par de detalles menores de CSS sin usar (`color-scheme`, `text-transform` no pedidos explícitamente).
-3. Una vez resueltos los hallazgos que valga la pena resolver, cerrar la rama: fusionarla a `master` (usando la skill `finishing-a-development-branch`) y decidir si se conserva o se borra la copia de trabajo aparte.
+Verificado después de los cambios: las 6 pruebas de `logic.test.js` siguen pasando con `node logic.test.js`, y la app se sirvió con `python3 -m http.server` sin errores.
+
+**Lo que falta ahora es cerrar la rama**: fusionarla a `master` (usando la skill `finishing-a-development-branch`) y decidir si se conserva o se borra la copia de trabajo aparte -- eso se deja para que Sebas lo confirme explícitamente, no se hace solo.
 
 ## Después de fusionar (lo que ya habíamos hablado y sigue pendiente)
 
