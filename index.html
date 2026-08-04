@@ -42,7 +42,7 @@
     padding-top: 16px;
     padding-left: calc(20px + env(safe-area-inset-left, 0px));
     padding-right: calc(20px + env(safe-area-inset-right, 0px));
-    padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(18px + env(safe-area-inset-bottom, 0px));
     max-width: 480px; margin-inline: auto; background: var(--bg); color: var(--ink);
     box-sizing: border-box; overscroll-behavior-y: none;
     display: flex; flex-direction: column; min-height: 100%;
@@ -176,7 +176,7 @@
 
   #notebook {
     position: relative; width: 100%;
-    height: var(--alto-notebook, 220px);
+    height: var(--alto-notebook, 240px);
     transition: height .25s ease;
     touch-action: none;
   }
@@ -306,7 +306,7 @@
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
-    const alto = Math.max(medidor.offsetHeight + 110, 160);
+    const alto = Math.max(medidor.offsetHeight + 130, 180);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
