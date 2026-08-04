@@ -176,7 +176,7 @@
 
   #notebook {
     position: relative; width: 100%;
-    height: var(--alto-notebook, 240px);
+    height: var(--alto-notebook, 250px);
     transition: height .25s ease;
     touch-action: none;
   }
@@ -306,7 +306,7 @@
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
-    const alto = Math.max(medidor.offsetHeight + 130, 180);
+    const alto = Math.max(medidor.offsetHeight + 140, 190);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
