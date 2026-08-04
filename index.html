@@ -863,6 +863,35 @@
     document.addEventListener('mouseup', (e) => terminar(e.clientX, e.clientY));
   })();
 
+  // Swipe horizontal dedicado sobre el encabezado del mes, aparte del gesto
+  // combinado del cuaderno. Un swipe con el dedo casi nunca es perfectamente
+  // horizontal, y el detector del cuaderno (que también maneja el doblez
+  // vertical) puede confundirlo con un intento de pasar página; aquí solo se
+  // mide el desplazamiento final, sin competir con ese otro gesto.
+  (function swipeMes() {
+    const UMBRAL_X_MES = 40;
+    let inicioX = null;
+    let inicioY = null;
+
+    function empezar(x, y) { inicioX = x; inicioY = y; }
+    function terminar(x, y) {
+      if (inicioX === null) return;
+      const deltaX = x - inicioX;
+      const deltaY = y - inicioY;
+      inicioX = null;
+      inicioY = null;
+      if (Math.abs(deltaX) < UMBRAL_X_MES || Math.abs(deltaX) < Math.abs(deltaY)) return;
+      if (deltaX <= -UMBRAL_X_MES) cambiarMes(1);
+      else if (deltaX >= UMBRAL_X_MES) cambiarMes(-1);
+    }
+
+    const mesNav = document.getElementById('mesNav');
+    mesNav.addEventListener('touchstart', (e) => empezar(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+    mesNav.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientX, e.changedTouches[0].clientY));
+    mesNav.addEventListener('mousedown', (e) => empezar(e.clientX, e.clientY));
+    document.addEventListener('mouseup', (e) => { if (inicioX !== null) terminar(e.clientX, e.clientY); });
+  })();
+
   ajustarAltura(htmlDePagina('blanco'));
   render();
 </script>
