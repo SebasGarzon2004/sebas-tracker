@@ -802,13 +802,18 @@
     let rafPendiente = null;
     let deltaPendiente = 0;
 
-    function esCampoInteractivo(el) {
-      return !!(el && el.closest && el.closest('input, textarea, select, button, .chip, .anular, [contenteditable]'));
+    // Solo los campos de texto necesitan quedar exentos (para no robarle el
+    // arrastre horizontal a la selección/cursor de texto). Los chips y
+    // botones no tienen ningún gesto propio que proteger, así que un
+    // arrastre vertical que empiece sobre ellos también debe doblar la
+    // página — si no, la hoja de agregar gasto (llena de chips e inputs) se
+    // sentía como si a veces el dedo "se comiera" el gesto de pasar página.
+    function esCampoDeTexto(el) {
+      return !!(el && el.closest && el.closest('input, textarea, [contenteditable]'));
     }
 
     function empezar(x, y, target) {
-      if (esCampoInteractivo(target)) { inicio = null; eje = null; return; }
-      inicio = { x, y };
+      inicio = { x, y, target };
       eje = null;
     }
 
@@ -823,6 +828,11 @@
         if (eje === 'vertical') {
           const direccion = deltaY < 0 ? 'arriba' : 'abajo';
           empezarArrastrePagina(direccion);
+        } else if (esCampoDeTexto(inicio.target)) {
+          // Deja el arrastre horizontal para el comportamiento nativo del
+          // campo de texto (mover el cursor, seleccionar), no lo toma como
+          // intento de cambiar de mes.
+          eje = 'ignorado';
         }
       }
 
