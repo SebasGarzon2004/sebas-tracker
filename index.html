@@ -23,6 +23,9 @@
     --tag-salidas: #B5473A;
     --tag-gp: #46626F;
     --tag-hogar: #8A6A4E;
+    --pago-breb: #6B4FA0;
+    --pago-rappicard: #E8590C;
+    --pago-efectivo: #2E7D8C;
     --shadow: 0 8px 24px rgba(20, 30, 24, 0.10);
   }
   .rounded { font-family: ui-rounded, -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -73,6 +76,13 @@
   .barra-salidas { background: var(--tag-salidas); }
   .barra-gp { background: var(--tag-gp); }
   .barra-hogar { background: var(--tag-hogar); }
+  .barra-breb { background: var(--pago-breb); }
+  .barra-rappicard { background: var(--pago-rappicard); }
+  .barra-efectivo { background: var(--pago-efectivo); }
+  .pastilla-breb { border-color: var(--pago-breb); color: var(--pago-breb); }
+  .pastilla-rappicard { border-color: var(--pago-rappicard); color: var(--pago-rappicard); }
+  .pastilla-efectivo { border-color: var(--pago-efectivo); color: var(--pago-efectivo); }
+  .resumen-separador { border-top: 1px solid var(--line); margin: 12px 0 8px; }
 
   #controles { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
   #controles button { padding: 12px 14px; font-size: 1rem; }
@@ -260,7 +270,7 @@
   }
   function mesActualKey() { return mesKeyDeFecha(new Date().toISOString()); }
 
-  let estado = { mesIndex: null, posicion: -1, categoriaFiltro: null, _saltarAlFiltrar: false };
+  let estado = { mesIndex: null, posicion: -1, categoriaFiltro: null, pagoFiltro: null, _saltarAlFiltrar: false };
 
   // Todas las páginas (portada, hoja en blanco, recibos guardados) comparten
   // un único alto de cuaderno en vez de medirse cada una por su cuenta — si no,
@@ -300,7 +310,7 @@
     const esMesActual = mesKey === mesActual;
     const gastosDelMes = gastosPorMes[mesKey] || [];
     const resumen = calcularResumenMes(gastosDelMes);
-    const paginas = obtenerPaginas(gastosDelMes, esMesActual, estado.categoriaFiltro);
+    const paginas = obtenerPaginas(gastosDelMes, esMesActual, estado.categoriaFiltro, estado.pagoFiltro);
     if (estado._saltarAlFiltrar) {
       estado.posicion = paginas.length > 0 ? 0 : -1;
       estado._saltarAlFiltrar = false;
@@ -326,6 +336,16 @@
             <span class="barra ${BADGE_CATEGORIA[cat].replace('badge-', 'barra-')}"></span>
             <span class="nombre">${cat}</span>
             <span class="monto">${moneda(resumen.porCategoria[cat])}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="resumen-separador"></div>
+      <div class="resumen-filas">
+        ${PAGOS.map(p => `
+          <div class="resumen-fila" data-pago="${p}">
+            <span class="barra barra-${CLASE_PAGO[p]}"></span>
+            <span class="nombre">${p}</span>
+            <span class="monto">${moneda(resumen.porPago[p])}</span>
           </div>
         `).join('')}
       </div>
@@ -374,7 +394,10 @@
     return NOMBRES_MES[mes - 1].toLowerCase();
   }
 
-  const PAGOS = ['BreB', 'RappiCard', 'Efectivo'];
+  // PAGOS ya viene declarada como global desde logic.js (mismo patrón que
+  // CATEGORIAS) — no se vuelve a declarar aquí para no chocar con un
+  // "Identifier 'PAGOS' has already been declared".
+  const CLASE_PAGO = { 'BreB': 'breb', 'RappiCard': 'rappicard', 'Efectivo': 'efectivo' };
   let seleccion = { categoria: null, pago: null };
 
   function escapeHtml(texto) {
@@ -441,9 +464,15 @@
 
   function actualizarFiltroActivo() {
     const el = document.getElementById('filtroActivo');
-    if (!estado.categoriaFiltro) { el.innerHTML = ''; return; }
-    const clase = BADGE_CATEGORIA[estado.categoriaFiltro].replace('badge-', 'chip-');
-    el.innerHTML = `<button type="button" id="quitarFiltro" class="pastilla-filtro ${clase}">${escapeHtml(estado.categoriaFiltro)} ✕</button>`;
+    if (estado.categoriaFiltro) {
+      const clase = BADGE_CATEGORIA[estado.categoriaFiltro].replace('badge-', 'chip-');
+      el.innerHTML = `<button type="button" id="quitarFiltro" class="pastilla-filtro ${clase}">${escapeHtml(estado.categoriaFiltro)} ✕</button>`;
+    } else if (estado.pagoFiltro) {
+      const clase = `pastilla-${CLASE_PAGO[estado.pagoFiltro]}`;
+      el.innerHTML = `<button type="button" id="quitarFiltro" class="pastilla-filtro ${clase}">${escapeHtml(estado.pagoFiltro)} ✕</button>`;
+    } else {
+      el.innerHTML = '';
+    }
   }
 
   function marcarSeleccionActiva() {
@@ -828,8 +857,15 @@
   document.getElementById('resumen').addEventListener('click', (e) => {
     const fila = e.target.closest('.resumen-fila');
     if (!fila) return;
-    const cat = fila.dataset.categoria;
-    estado.categoriaFiltro = (estado.categoriaFiltro === cat) ? null : cat;
+    if (fila.dataset.categoria) {
+      const cat = fila.dataset.categoria;
+      estado.categoriaFiltro = (estado.categoriaFiltro === cat) ? null : cat;
+      estado.pagoFiltro = null;
+    } else if (fila.dataset.pago) {
+      const pago = fila.dataset.pago;
+      estado.pagoFiltro = (estado.pagoFiltro === pago) ? null : pago;
+      estado.categoriaFiltro = null;
+    }
     estado._saltarAlFiltrar = true;
     window._paginaInicial = false;
     render();
@@ -838,6 +874,7 @@
   document.getElementById('filtroActivo').addEventListener('click', (e) => {
     if (!e.target.closest('#quitarFiltro')) return;
     estado.categoriaFiltro = null;
+    estado.pagoFiltro = null;
     estado._saltarAlFiltrar = true;
     window._paginaInicial = false;
     render();
@@ -900,7 +937,7 @@
     setTimeout(() => {
       estado.mesIndex = nuevoIndex;
       estado.posicion = -1;
-      if (estado.categoriaFiltro) estado._saltarAlFiltrar = true;
+      if (estado.categoriaFiltro || estado.pagoFiltro) estado._saltarAlFiltrar = true;
       window._paginaInicial = false;
       render();
 

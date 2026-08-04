@@ -39,16 +39,20 @@ function mesesDisponibles(gastosPorMes, mesActualKey) {
 }
 
 const CATEGORIAS = ['Shaun', 'Swift', 'Salidas', 'Gastos Personales', 'Hogar'];
+const PAGOS = ['BreB', 'RappiCard', 'Efectivo'];
 
 function calcularResumenMes(gastosDelMes) {
   const porCategoria = {};
   for (const cat of CATEGORIAS) porCategoria[cat] = 0;
+  const porPago = {};
+  for (const pago of PAGOS) porPago[pago] = 0;
   let total = 0;
   for (const g of gastosDelMes) {
     total += g.monto;
     porCategoria[g.categoria] = (porCategoria[g.categoria] || 0) + g.monto;
+    porPago[g.pago] = (porPago[g.pago] || 0) + g.monto;
   }
-  return { total, porCategoria };
+  return { total, porCategoria, porPago };
 }
 
 function cambioPorcentual(totalActual, totalAnterior) {
@@ -56,11 +60,12 @@ function cambioPorcentual(totalActual, totalAnterior) {
   return Math.round(((totalActual - totalAnterior) / totalAnterior) * 100);
 }
 
-function obtenerPaginas(gastosDelMes, esMesActual, categoriaFiltro) {
-  const gastosFiltrados = categoriaFiltro
-    ? gastosDelMes.filter(g => g.categoria === categoriaFiltro)
-    : gastosDelMes;
-  if (categoriaFiltro) return [...gastosFiltrados];
+function obtenerPaginas(gastosDelMes, esMesActual, categoriaFiltro, pagoFiltro) {
+  let gastosFiltrados = gastosDelMes;
+  if (categoriaFiltro) gastosFiltrados = gastosFiltrados.filter(g => g.categoria === categoriaFiltro);
+  if (pagoFiltro) gastosFiltrados = gastosFiltrados.filter(g => g.pago === pagoFiltro);
+  const hayFiltro = Boolean(categoriaFiltro || pagoFiltro);
+  if (hayFiltro) return [...gastosFiltrados];
   return esMesActual ? ['blanco', ...gastosFiltrados] : [...gastosFiltrados];
 }
 
@@ -84,7 +89,7 @@ function opacidadPliegue(anguloAbsoluto) {
 
 if (typeof module !== 'undefined') {
   module.exports = {
-    CATEGORIAS,
+    CATEGORIAS, PAGOS,
     mesKeyDeFecha, agruparPorMes, mesesDisponibles,
     calcularResumenMes, cambioPorcentual, obtenerPaginas, clamp,
     anguloDesdeArrastre, debeCompletarDoblez, opacidadPliegue

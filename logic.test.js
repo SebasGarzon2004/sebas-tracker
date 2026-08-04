@@ -70,6 +70,9 @@ test('calcularResumenMes suma el total y el desglose por categoría', () => {
   assert.strictEqual(resumen.porCategoria.Shaun, 0, 'las categorías sin gastos quedan en 0, no ausentes');
   assert.strictEqual(resumen.porCategoria.Swift, 0);
   assert.strictEqual(resumen.porCategoria['Gastos Personales'], 0);
+  assert.strictEqual(resumen.porPago.Efectivo, 1500);
+  assert.strictEqual(resumen.porPago.BreB, 2000);
+  assert.strictEqual(resumen.porPago.RappiCard, 0, 'las formas de pago sin gastos quedan en 0, no ausentes');
 });
 
 test('obtenerPaginas antepone la hoja en blanco solo en el mes actual', () => {
@@ -89,6 +92,17 @@ test('obtenerPaginas filtra por categoría y nunca incluye la hoja en blanco cua
   assert.deepStrictEqual(obtenerPaginas(gastos, false, 'Shaun'), [gastos[1], gastos[2]]);
   assert.deepStrictEqual(obtenerPaginas(gastos, true, 'Swift'), [], 'sin gastos de esa categoría, la lista queda vacía');
   assert.deepStrictEqual(obtenerPaginas(gastos, true, null), ['blanco', gastos[0], gastos[1], gastos[2]], 'sin filtro se comporta igual que antes');
+});
+
+test('obtenerPaginas también filtra por forma de pago, y combina ambos filtros si vienen juntos', () => {
+  const gastos = [
+    { id: 1, monto: 100, categoria: 'Hogar', pago: 'Efectivo', fecha: '2026-08-01T10:00:00.000Z' },
+    { id: 2, monto: 200, categoria: 'Shaun', pago: 'BreB', fecha: '2026-08-02T10:00:00.000Z' },
+    { id: 3, monto: 300, categoria: 'Shaun', pago: 'Efectivo', fecha: '2026-08-03T10:00:00.000Z' },
+  ];
+  assert.deepStrictEqual(obtenerPaginas(gastos, true, null, 'Efectivo'), [gastos[0], gastos[2]]);
+  assert.deepStrictEqual(obtenerPaginas(gastos, true, 'Shaun', 'Efectivo'), [gastos[2]], 'con los dos filtros a la vez, solo pasa lo que cumple ambos');
+  assert.deepStrictEqual(obtenerPaginas(gastos, true, null, 'RappiCard'), [], 'sin gastos con esa forma de pago, la lista queda vacía');
 });
 
 test('clamp limita un valor entre un mínimo y un máximo', () => {
