@@ -131,7 +131,7 @@
   .hoja-escrita.borde-hogar { border-left-color: var(--tag-hogar); }
 
   #notebook {
-    position: relative; width: 100%; perspective: 1400px;
+    position: relative; width: 100%; perspective: 950px;
     height: var(--alto-notebook, 220px);
     transition: height .25s ease;
     touch-action: none;
@@ -422,6 +422,13 @@
 
   let animando = false;
 
+  // El ángulo del doblez se calcula a partir de una distancia de arrastre fija
+  // (no del alto real de la tarjeta): si dependiera del alto, con la tarjeta
+  // grande compartida entre páginas un swipe normal con el dedo apenas movía
+  // el ángulo un poco y el doblez se veía plano — hacía falta arrastrar casi
+  // toda la pantalla para completarlo.
+  const DISTANCIA_DOBLEZ_COMPLETO = 230;
+
   function commitCambioPagina(direccion) {
     const posicionAnterior = estado.posicion;
     estado.posicion += (direccion === 'arriba' ? -1 : 1);
@@ -490,13 +497,11 @@
 
   function actualizarArrastrePagina(deltaEnDireccion) {
     if (!arrastrePagina) return;
-    const notebook = document.getElementById('notebook');
     const leaf = document.getElementById('leaf');
     const crease = leaf.querySelector('.crease-shadow');
     const creaseLight = leaf.querySelector('.crease-light');
-    const alto = notebook.clientHeight || 220;
 
-    let angulo = anguloDesdeArrastre(Math.max(0, deltaEnDireccion), alto);
+    let angulo = anguloDesdeArrastre(Math.max(0, deltaEnDireccion), DISTANCIA_DOBLEZ_COMPLETO);
     if (arrastrePagina.alcanzoLimite) angulo = Math.min(angulo, 18);
 
     const anguloConSigno = arrastrePagina.direccion === 'arriba' ? -angulo : angulo;
@@ -793,6 +798,13 @@
     const UMBRAL_X = 60;
     let inicio = null;
     let eje = null;
+    // El dedo puede disparar touchmove más rápido de lo que la pantalla
+    // repinta. Escribir el transform/border-radius en cada evento (en vez de
+    // una vez por frame) era el principal culpable de que el doblez se viera
+    // poco fluido, así que se agrupa: se guarda el último delta y se aplica
+    // una sola vez por frame con requestAnimationFrame.
+    let rafPendiente = null;
+    let deltaPendiente = 0;
 
     function esCampoInteractivo(el) {
       return !!(el && el.closest && el.closest('input, textarea, select, button, .chip, .anular, [contenteditable]'));
@@ -820,14 +832,20 @@
 
       if (eje === 'vertical' && arrastrePagina) {
         if (evento.cancelable) evento.preventDefault();
-        const deltaEnDireccion = arrastrePagina.direccion === 'arriba' ? -deltaY : deltaY;
-        actualizarArrastrePagina(deltaEnDireccion);
+        deltaPendiente = arrastrePagina.direccion === 'arriba' ? -deltaY : deltaY;
+        if (rafPendiente === null) {
+          rafPendiente = requestAnimationFrame(() => {
+            rafPendiente = null;
+            actualizarArrastrePagina(deltaPendiente);
+          });
+        }
       } else if (eje === 'horizontal') {
         if (evento.cancelable) evento.preventDefault();
       }
     }
 
     function terminar(x, y) {
+      if (rafPendiente !== null) { cancelAnimationFrame(rafPendiente); rafPendiente = null; }
       if (eje === 'vertical' && arrastrePagina) {
         terminarArrastrePagina();
       } else if (eje === 'horizontal' && inicio) {
