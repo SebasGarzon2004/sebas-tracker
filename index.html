@@ -268,7 +268,7 @@
     // condición para que el cuaderno no reserve un hueco vacío mientras la caja
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
-    if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
+    if (cajaRecibo && !montoConfirmado()) cajaRecibo.style.display = 'none';
     const alto = Math.max(medidor.offsetHeight + 50, 160);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
@@ -432,6 +432,11 @@
   function ocultarMontoConfirmado(ocultar) {
     const input = document.getElementById('monto');
     if (input) input.style.display = ocultar ? 'none' : '';
+  }
+
+  function montoConfirmado() {
+    const input = document.getElementById('monto');
+    return !!(input && input.style.display === 'none');
   }
 
   function actualizarGuardar() {
@@ -614,14 +619,6 @@
   // al instante, sin reiniciar la animación completa.
   let lineasEscritas = {};
 
-  function reciboTieneContenido() {
-    const montoInput = document.getElementById('monto');
-    const notaInput = document.getElementById('nota');
-    const monto = montoInput ? numeroDesdeMonto(montoInput.value) : NaN;
-    const nota = notaInput ? notaInput.value.trim() : '';
-    return Boolean(seleccion.categoria || seleccion.pago || monto > 0 || nota);
-  }
-
   // La copia de la hoja en blanco que se pone en #pageUnder durante la
   // transición (mientras la hoja vieja se desliza) nunca pasa por
   // actualizarRecibo() — ese ocultamiento solo corre cuando la página se
@@ -630,7 +627,7 @@
   // desaparecía de golpe al asentarse la página.
   function ocultarCajaReciboVacia(contenedor) {
     const caja = contenedor && contenedor.querySelector('#reciboPreviewBox');
-    if (caja) caja.style.display = reciboTieneContenido() ? '' : 'none';
+    if (caja) caja.style.display = montoConfirmado() ? '' : 'none';
   }
 
   function actualizarRecibo() {
@@ -698,7 +695,7 @@
     });
 
     const contenedor = document.getElementById('reciboPreviewBox');
-    if (contenedor) contenedor.style.display = reciboTieneContenido() ? '' : 'none';
+    if (contenedor) contenedor.style.display = montoConfirmado() ? '' : 'none';
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
