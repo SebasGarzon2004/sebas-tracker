@@ -290,7 +290,7 @@
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
-    const alto = Math.max(medidor.offsetHeight + 60, 160);
+    const alto = Math.max(medidor.offsetHeight + 110, 160);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
@@ -366,7 +366,6 @@
       marcarSeleccionActiva();
       actualizarGuardar();
       actualizarRecibo();
-      mantenerGuardarVisibleSiEsBlanco(contenidoActual);
     }
 
     ajustarAltura(html);
@@ -442,7 +441,7 @@
         </div>
         <div class="grupo-titulo">Nota (opcional)</div>
         <input type="text" id="nota" placeholder="Descripción del gasto" maxlength="140">
-        <button id="guardarBtn" disabled>Guardar gasto</button>
+        <button id="guardarBtn" disabled style="display:none">Guardar gasto</button>
       `;
     }
     const badgeClase = BADGE_CATEGORIA[contenido.categoria] || 'badge-hogar';
@@ -512,7 +511,12 @@
     const montoInput = document.getElementById('monto');
     if (!btn || !montoInput) return;
     const monto = numeroDesdeMonto(montoInput.value);
-    btn.disabled = !(monto > 0 && seleccion.categoria && seleccion.pago);
+    const listo = monto > 0 && seleccion.categoria && seleccion.pago;
+    // El botón ni aparece mientras falte algo por elegir — así no compite
+    // por espacio con los campos que todavía se están llenando, y solo
+    // ocupa lugar cuando de verdad hay algo que guardar.
+    btn.style.display = listo ? '' : 'none';
+    btn.disabled = !listo;
   }
 
   let animando = false;
@@ -560,7 +564,6 @@
       marcarSeleccionActiva();
       actualizarGuardar();
       actualizarRecibo();
-      mantenerGuardarVisibleSiEsBlanco(datos.contenidoActual);
       leaf.removeEventListener('animationend', terminar);
       animando = false;
     };
@@ -630,7 +633,6 @@
         marcarSeleccionActiva();
         actualizarGuardar();
         actualizarRecibo();
-        mantenerGuardarVisibleSiEsBlanco(datos.contenidoActual);
         animando = false;
         arrastrePagina = null;
       }, 200);
@@ -897,15 +899,6 @@
   function mantenerGuardarVisible() {
     const btn = document.getElementById('guardarBtn');
     if (btn) btn.scrollIntoView({ block: 'end', behavior: 'smooth' });
-  }
-
-  // Al entrar a la hoja en blanco (sin haber tocado nada todavía), "Guardar
-  // gasto" puede quedar fuera de la pantalla desde el primer vistazo. Como el
-  // gesto de doblar página captura cualquier arrastre sobre la tarjeta, el
-  // usuario no tiene forma de arrastrar con el dedo para revelarlo — hay que
-  // hacer scroll por código, no depender de que el usuario pueda hacerlo.
-  function mantenerGuardarVisibleSiEsBlanco(contenidoActual) {
-    if (contenidoActual === 'blanco') setTimeout(mantenerGuardarVisible, 260);
   }
 
   document.getElementById('notebook').addEventListener('focusin', (e) => {
