@@ -8,7 +8,7 @@
 <title>Mis Gastos</title>
 <style>
   :root {
-    color-scheme: light dark;
+    color-scheme: light;
     --bg: #EEF0E7;
     --card: #FBFBF7;
     --ink: #1C231F;
@@ -25,26 +25,6 @@
     --tag-hogar: #8A6A4E;
     --shadow: 0 8px 24px rgba(20, 30, 24, 0.10);
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #10140F; --card: #1A201A; --ink: #ECEEE7; --muted: #9AA296; --line: #2A302A;
-      --emerald: #46B583; --emerald-deep: #2E8A63; --gold: #D9AE5C; --coral: #E2695A;
-      --tag-shaun: #46B583; --tag-swift: #D9AE5C; --tag-salidas: #E2695A; --tag-gp: #7C99A6; --tag-hogar: #B3936F;
-      --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #10140F; --card: #1A201A; --ink: #ECEEE7; --muted: #9AA296; --line: #2A302A;
-    --emerald: #46B583; --emerald-deep: #2E8A63; --gold: #D9AE5C; --coral: #E2695A;
-    --tag-shaun: #46B583; --tag-swift: #D9AE5C; --tag-salidas: #E2695A; --tag-gp: #7C99A6; --tag-hogar: #B3936F;
-    --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
-  }
-  :root[data-theme="light"] {
-    --bg: #EEF0E7; --card: #FBFBF7; --ink: #1C231F; --muted: #6B7268; --line: #DEDFD3;
-    --emerald: #1F6F54; --emerald-deep: #14503C; --gold: #B98A2E; --coral: #B5473A;
-    --tag-shaun: #2F8F6B; --tag-swift: #B98A2E; --tag-salidas: #B5473A; --tag-gp: #46626F; --tag-hogar: #8A6A4E;
-    --shadow: 0 8px 24px rgba(20, 30, 24, 0.10);
-  }
   .rounded { font-family: ui-rounded, -apple-system, BlinkMacSystemFont, sans-serif; }
 
   html, body { height: 100%; }
@@ -56,10 +36,13 @@
     display: flex; flex-direction: column; min-height: 100%;
   }
 
-  #mesHeader { text-align: center; font-size: 1.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin: 4px 0 8px; }
-  #mesHeader::after { content: ''; display: block; width: 48px; height: 2px; background: var(--gold); margin: 10px auto 0; border-radius: 2px; }
+  #mesHeader {
+    text-align: center; font-family: 'Snell Roundhand', 'Bradley Hand', cursive, ui-rounded, -apple-system, sans-serif;
+    font-size: 2.1rem; font-weight: 600; letter-spacing: 0.01em; margin: 4px 0 6px;
+  }
+  #mesHeader::after { content: ''; display: block; width: 48px; height: 2px; background: var(--gold); margin: 6px auto 0; border-radius: 2px; }
 
-  #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 22px; background: var(--card); box-shadow: var(--shadow); }
+  #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--card); box-shadow: var(--shadow); }
   #resumen .resumen-total { font-size: 1.15rem; margin-bottom: 6px; }
   #resumen .resumen-desglose { color: var(--muted); font-size: 0.85rem; line-height: 1.7; }
 
@@ -176,13 +159,13 @@
     box-sizing: border-box; border: 1px solid var(--line); padding: 18px; border-radius: 6px;
   }
 
-  #borrarTodo { display: block; margin: 24px auto 0; background: none; border: none; color: var(--coral); font-size: 0.8rem; padding: 8px; }
+  #borrarTodo { display: block; margin: 10px auto 0; background: none; border: none; color: var(--coral); font-size: 0.75rem; padding: 4px; }
   .anular { background: none; border: 1.5px solid var(--coral); color: var(--coral); border-radius: 10px; padding: 10px 14px; font-weight: 700; margin-top: 12px; }
   .anular:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
-  <h1 id="mesHeader" class="rounded"></h1>
+  <h1 id="mesHeader"></h1>
   <div id="notebook">
     <div class="spiral"></div>
     <div class="pagina-cara pila pila-2" aria-hidden="true"></div>
