@@ -360,7 +360,15 @@
 
     if (!window._paginaInicial) {
       document.getElementById('faceFront').innerHTML = html;
-      document.getElementById('pageUnder').innerHTML = html;
+      // Vacío, no una copia de "html": #pageUnder solo se llena justo antes
+      // de empezar una transición (arrastre o flip por botón), con el
+      // contenido de la página SIGUIENTE. Si aquí también se llenaba con la
+      // misma página que #faceFront, quedaban dos elementos con el mismo id
+      // (#reciboPreviewBox, #monto...) a la vez — y como #pageUnder viene
+      // primero en el documento, document.getElementById() encontraba esa
+      // copia invisible en vez de la visible, dejando la caja de vista
+      // previa sin ocultar en la hoja que sí se ve.
+      document.getElementById('pageUnder').innerHTML = '';
       window._paginaInicial = true;
       // Solo se sincronizan los chips/inputs visibles cuando esta llamada a
       // render() de verdad puso la página nueva en #faceFront. Cuando
