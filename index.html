@@ -108,6 +108,12 @@
   .chip-cat.selected.chip-salidas { background: var(--tag-salidas); color: #fff; border-color: transparent; }
   .chip-cat.selected.chip-gp { background: var(--tag-gp); color: #fff; border-color: transparent; }
   .chip-cat.selected.chip-hogar { background: var(--tag-hogar); color: #fff; border-color: transparent; }
+  .chip-breb { border-color: var(--pago-breb); color: var(--pago-breb); }
+  .chip-tarjeta { border-color: var(--pago-tarjeta); color: var(--pago-tarjeta); }
+  .chip-efectivo { border-color: var(--pago-efectivo); color: var(--pago-efectivo); }
+  .chip-pago.selected.chip-breb { background: var(--pago-breb); color: #fff; border-color: transparent; }
+  .chip-pago.selected.chip-tarjeta { background: var(--pago-tarjeta); color: #fff; border-color: transparent; }
+  .chip-pago.selected.chip-efectivo { background: var(--pago-efectivo); color: #fff; border-color: transparent; }
 
   #monto { font-size: 1.4rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
   #nota { font-size: 0.95rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-family: inherit; }
@@ -437,7 +443,7 @@
         </div>
         <div class="grupo-titulo">Forma de pago</div>
         <div class="chips" id="chipsPago">
-          ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
+          ${PAGOS.map(p => `<button type="button" class="chip chip-pago chip-${CLASE_PAGO[p]}" data-pago="${p}">${p}</button>`).join('')}
         </div>
         <div class="grupo-titulo">Nota (opcional)</div>
         <input type="text" id="nota" placeholder="Descripción del gasto" maxlength="140">
