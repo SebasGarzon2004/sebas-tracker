@@ -43,8 +43,17 @@
   #mesHeader::after { content: ''; display: block; width: 48px; height: 2px; background: var(--gold); margin: 6px auto 0; border-radius: 2px; }
 
   #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--card); box-shadow: var(--shadow); }
-  #resumen .resumen-total { font-size: 1.15rem; margin-bottom: 6px; }
-  #resumen .resumen-desglose { color: var(--muted); font-size: 0.85rem; line-height: 1.7; }
+  .resumen-total-mes { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+  .resumen-filas { display: flex; flex-direction: column; gap: 6px; }
+  .resumen-fila { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+  .resumen-fila .barra { width: 5px; height: 16px; border-radius: 3px; flex-shrink: 0; }
+  .resumen-fila .nombre { flex: 1; color: var(--ink); }
+  .resumen-fila .monto { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .barra-shaun { background: var(--tag-shaun); }
+  .barra-swift { background: var(--tag-swift); }
+  .barra-salidas { background: var(--tag-salidas); }
+  .barra-gp { background: var(--tag-gp); }
+  .barra-hogar { background: var(--tag-hogar); }
 
   #controles { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
   #controles button { padding: 12px 14px; font-size: 1rem; }
@@ -226,8 +235,16 @@
 
     document.getElementById('mesHeader').textContent = nombreMes(mesKey);
     document.getElementById('resumen').innerHTML = `
-      <div class="resumen-total rounded"><strong>Total: ${moneda(resumen.total)}</strong></div>
-      <div class="resumen-desglose">${CATEGORIAS.map(cat => `${cat}: ${moneda(resumen.porCategoria[cat])}`).join(' · ')}</div>
+      <div class="resumen-total-mes rounded">Total del mes: ${moneda(resumen.total)}</div>
+      <div class="resumen-filas">
+        ${CATEGORIAS.map(cat => `
+          <div class="resumen-fila">
+            <span class="barra ${BADGE_CATEGORIA[cat].replace('badge-', 'barra-')}"></span>
+            <span class="nombre">${cat}</span>
+            <span class="monto">${moneda(resumen.porCategoria[cat])}</span>
+          </div>
+        `).join('')}
+      </div>
     `;
 
     const contenidoActual = estado.posicion === -1 ? 'portada' : paginas[estado.posicion];
