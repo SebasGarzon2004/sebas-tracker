@@ -8,7 +8,7 @@
 <title>Mis Gastos</title>
 <style>
   :root {
-    color-scheme: light dark;
+    color-scheme: light;
     --bg: #EEF0E7;
     --card: #FBFBF7;
     --ink: #1C231F;
@@ -25,26 +25,6 @@
     --tag-hogar: #8A6A4E;
     --shadow: 0 8px 24px rgba(20, 30, 24, 0.10);
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #10140F; --card: #1A201A; --ink: #ECEEE7; --muted: #9AA296; --line: #2A302A;
-      --emerald: #46B583; --emerald-deep: #2E8A63; --gold: #D9AE5C; --coral: #E2695A;
-      --tag-shaun: #46B583; --tag-swift: #D9AE5C; --tag-salidas: #E2695A; --tag-gp: #7C99A6; --tag-hogar: #B3936F;
-      --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
-    }
-  }
-  :root[data-theme="dark"] {
-    --bg: #10140F; --card: #1A201A; --ink: #ECEEE7; --muted: #9AA296; --line: #2A302A;
-    --emerald: #46B583; --emerald-deep: #2E8A63; --gold: #D9AE5C; --coral: #E2695A;
-    --tag-shaun: #46B583; --tag-swift: #D9AE5C; --tag-salidas: #E2695A; --tag-gp: #7C99A6; --tag-hogar: #B3936F;
-    --shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
-  }
-  :root[data-theme="light"] {
-    --bg: #EEF0E7; --card: #FBFBF7; --ink: #1C231F; --muted: #6B7268; --line: #DEDFD3;
-    --emerald: #1F6F54; --emerald-deep: #14503C; --gold: #B98A2E; --coral: #B5473A;
-    --tag-shaun: #2F8F6B; --tag-swift: #B98A2E; --tag-salidas: #B5473A; --tag-gp: #46626F; --tag-hogar: #8A6A4E;
-    --shadow: 0 8px 24px rgba(20, 30, 24, 0.10);
-  }
   .rounded { font-family: ui-rounded, -apple-system, BlinkMacSystemFont, sans-serif; }
 
   html, body { height: 100%; }
@@ -56,11 +36,24 @@
     display: flex; flex-direction: column; min-height: 100%;
   }
 
-  #mesHeader { text-align: center; font-size: 1.5rem; font-weight: 700; letter-spacing: 0.02em; margin: 4px 0 18px; }
+  #mesHeader {
+    text-align: center; font-family: 'Snell Roundhand', 'Bradley Hand', cursive, ui-rounded, -apple-system, sans-serif;
+    font-size: 2.1rem; font-weight: 600; letter-spacing: 0.01em; margin: 4px 0 6px;
+  }
+  #mesHeader::after { content: ''; display: block; width: 48px; height: 2px; background: var(--gold); margin: 6px auto 0; border-radius: 2px; }
 
-  #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 22px; background: var(--card); box-shadow: var(--shadow); }
-  #resumen .resumen-total { font-size: 1.15rem; margin-bottom: 6px; }
-  #resumen .resumen-desglose { color: var(--muted); font-size: 0.85rem; line-height: 1.7; }
+  #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--card); box-shadow: var(--shadow); }
+  .resumen-total-mes { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+  .resumen-filas { display: flex; flex-direction: column; gap: 6px; }
+  .resumen-fila { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+  .resumen-fila .barra { width: 5px; height: 16px; border-radius: 3px; flex-shrink: 0; }
+  .resumen-fila .nombre { flex: 1; color: var(--ink); }
+  .resumen-fila .monto { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .barra-shaun { background: var(--tag-shaun); }
+  .barra-swift { background: var(--tag-swift); }
+  .barra-salidas { background: var(--tag-salidas); }
+  .barra-gp { background: var(--tag-gp); }
+  .barra-hogar { background: var(--tag-hogar); }
 
   #controles { position: absolute; width: 1px; height: 1px; overflow: hidden; opacity: 0; }
   #controles button { padding: 12px 14px; font-size: 1rem; }
@@ -73,7 +66,19 @@
     transition: transform .15s ease, background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease;
   }
   .chip:active { transform: scale(0.96); }
-  .chip.selected { border-color: var(--emerald); background: var(--emerald); color: #fff; box-shadow: 0 3px 10px rgba(31,111,84,0.35); }
+  .chip.selected { border-color: var(--emerald); background: var(--emerald); color: #fff; box-shadow: 0 3px 10px rgba(31,111,84,0.35); transform: rotate(-2deg); }
+  .chip.selected:nth-child(even) { transform: rotate(2deg); }
+  .grupo-titulo { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 14px 0 6px; }
+  .chip-shaun { border-color: var(--tag-shaun); color: var(--tag-shaun); }
+  .chip-swift { border-color: var(--tag-swift); color: var(--tag-swift); }
+  .chip-salidas { border-color: var(--tag-salidas); color: var(--tag-salidas); }
+  .chip-gp { border-color: var(--tag-gp); color: var(--tag-gp); }
+  .chip-hogar { border-color: var(--tag-hogar); color: var(--tag-hogar); }
+  .chip-cat.selected.chip-shaun { background: var(--tag-shaun); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-swift { background: var(--tag-swift); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-salidas { background: var(--tag-salidas); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-gp { background: var(--tag-gp); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-hogar { background: var(--tag-hogar); color: #fff; border-color: transparent; }
 
   #monto { font-size: 1.4rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
   .recibo-preview { margin: 14px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); min-height: 60px; }
@@ -82,9 +87,10 @@
 
   #guardarBtn {
     width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 12px;
-    background: var(--emerald); color: #fff; font-weight: 700; font-size: 1rem;
+    background: linear-gradient(180deg, var(--emerald) 0%, var(--emerald-deep) 100%);
+    color: #fff; font-weight: 700; font-size: 1rem;
     letter-spacing: 0.04em; text-transform: uppercase;
-    box-shadow: 0 4px 14px rgba(31,111,84,0.3);
+    box-shadow: 0 4px 14px rgba(31,111,84,0.35), inset 0 1px 0 rgba(255,255,255,0.15);
     transition: transform .15s ease, opacity .15s ease, box-shadow .15s ease;
   }
   #guardarBtn:active:not(:disabled) { transform: scale(0.98); }
@@ -92,6 +98,8 @@
 
   .masthead { font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px dashed var(--line); }
   .content { font-family: 'Courier New', monospace; }
+  .monto-grande { font-size: 2rem; font-weight: 700; margin: 4px 0 10px; }
+  .detalle-secundario { color: var(--muted); font-size: 0.85rem; margin: 2px 0; }
 
   .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 20px; padding: 0 4px; border-radius: 5px; color: #fff; font-weight: bold; font-size: 0.7rem; letter-spacing: 0.02em; margin-right: 6px; }
   .badge-shaun { background: var(--tag-shaun); }
@@ -99,6 +107,12 @@
   .badge-salidas { background: var(--tag-salidas); }
   .badge-gp { background: var(--tag-gp); }
   .badge-hogar { background: var(--tag-hogar); }
+  .hoja-escrita { border-left: 5px solid transparent; padding-left: 13px; margin: -18px -18px -18px -13px; padding-top: 0; padding-right: 0; padding-bottom: 0; }
+  .hoja-escrita.borde-shaun { border-left-color: var(--tag-shaun); }
+  .hoja-escrita.borde-swift { border-left-color: var(--tag-swift); }
+  .hoja-escrita.borde-salidas { border-left-color: var(--tag-salidas); }
+  .hoja-escrita.borde-gp { border-left-color: var(--tag-gp); }
+  .hoja-escrita.borde-hogar { border-left-color: var(--tag-hogar); }
 
   .spiral { width: 100%; height: 14px; background: repeating-linear-gradient(90deg,#8a6a4e 0 6px, transparent 6px 14px); margin-bottom: -6px; position: relative; z-index: 5; }
   #notebook {
@@ -107,7 +121,7 @@
     transition: height .25s ease;
     touch-action: none;
   }
-  #notebook.mes-saliendo, #notebook.mes-entrando, #notebook.mes-mostrar { transition: transform .22s ease, opacity .22s ease; }
+  #notebook.mes-saliendo, #notebook.mes-entrando, #notebook.mes-mostrar { transition: transform .26s ease, opacity .26s ease; }
   #notebook.mes-saliendo.izq { opacity: 0; transform: translateX(-18px); }
   #notebook.mes-saliendo.der { opacity: 0; transform: translateX(18px); }
   #notebook.mes-entrando { transition: none !important; }
@@ -119,27 +133,51 @@
   }
 
   .pagina-cara, .leaf, .face { position: absolute; inset: 0; border-radius: 6px; }
-  .pagina-cara { background: var(--card); border: 1px solid var(--line); padding: 18px; box-sizing: border-box; box-shadow: var(--shadow); overflow: auto; }
+  .pagina-cara {
+    background-color: var(--card);
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,0.015) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,0.015) 0, transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(0,0,0,0.012) 0, transparent 45%);
+    border: 1px solid var(--line); padding: 18px; box-sizing: border-box; box-shadow: var(--shadow); overflow: auto;
+  }
   .pagina-cara.pila { pointer-events: none; }
   .pagina-cara.pila-1 { transform: rotate(-1.5deg) translate(-3px, 2px); z-index: 0; }
   .pagina-cara.pila-2 { transform: rotate(1.5deg) translate(3px, 4px); z-index: 0; }
   #pageUnder { z-index: 1; }
   .leaf { transform-style: preserve-3d; transform-origin: top center; z-index: 2; }
-  .face { backface-visibility: hidden; border: 1px solid var(--line); box-sizing: border-box; padding: 18px; box-shadow: var(--shadow); overflow: auto; }
-  .face-front { background: var(--card); }
-  .face-back { background: var(--card); transform: rotateX(180deg); }
-  .crease-shadow { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,.4) 50%, transparent 60%); opacity: 0; pointer-events: none; }
+  .face {
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(0,0,0,0.015) 0, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(0,0,0,0.015) 0, transparent 40%),
+      radial-gradient(circle at 50% 90%, rgba(0,0,0,0.012) 0, transparent 45%);
+    backface-visibility: hidden; border: 1px solid var(--line); box-sizing: border-box; padding: 18px; box-shadow: var(--shadow); overflow: auto;
+  }
+  .face-front { backface-visibility: hidden; }
+  .face-back { background-color: var(--card); transform: rotateX(180deg); }
+  .crease-shadow { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,.5) 50%, transparent 70%); opacity: 0; pointer-events: none; }
+  .crease-light { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,.35) 0%, transparent 25%); opacity: 0; pointer-events: none; }
   .stamp { position: absolute; top: 40%; left: 50%; width: 150px; padding: 6px 0; border: 3px solid var(--coral); color: var(--coral); font-weight: bold; text-align: center; letter-spacing: .1em; transform: translate(-50%,-50%) rotate(-14deg) scale(1); opacity: 0; pointer-events: none; z-index: 10; }
   .stamp.show { animation: stampPop .9s ease forwards; }
   @keyframes stampPop { 0%{opacity:0; transform:translate(-50%,-50%) rotate(-14deg) scale(2.2);} 30%{opacity:1; transform:translate(-50%,-50%) rotate(-14deg) scale(1);} 75%{opacity:1;} 100%{opacity:0; transform:translate(-50%,-50%) rotate(-14deg) scale(1);} }
   .leaf.flip-up { animation: flipUp .7s cubic-bezier(.5,-0.2,.3,1.3) forwards; }
   .leaf.flip-down { animation: flipDown .7s cubic-bezier(.5,-0.2,.3,1.3) forwards; }
   .leaf.flip-up .crease-shadow, .leaf.flip-down .crease-shadow { animation: crease .7s ease forwards; }
-  @keyframes flipUp { from{transform:rotateX(0deg);} to{transform:rotateX(-180deg);} }
-  @keyframes flipDown { from{transform:rotateX(-180deg);} to{transform:rotateX(0deg);} }
+  .leaf.flip-up .crease-light, .leaf.flip-down .crease-light { animation: creaseLight .7s ease forwards; }
+  @keyframes flipUp {
+    0%   { transform: rotateX(0deg) scaleY(1); border-radius: 6px; }
+    50%  { transform: rotateX(-90deg) scaleY(0.97); border-radius: 6px 6px 18px 18px; }
+    100% { transform: rotateX(-180deg) scaleY(1); border-radius: 6px; }
+  }
+  @keyframes flipDown {
+    0%   { transform: rotateX(0deg) scaleY(1); border-radius: 6px; }
+    50%  { transform: rotateX(90deg) scaleY(0.97); border-radius: 6px 6px 18px 18px; }
+    100% { transform: rotateX(180deg) scaleY(1); border-radius: 6px; }
+  }
   @keyframes crease { 0%{opacity:0;} 45%{opacity:1;} 55%{opacity:1;} 100%{opacity:0;} }
+  @keyframes creaseLight { 0%{opacity:0;} 45%{opacity:.6;} 55%{opacity:.6;} 100%{opacity:0;} }
   @media (prefers-reduced-motion: reduce) {
-    .leaf.flip-up, .leaf.flip-down, .leaf.flip-up .crease-shadow, .leaf.flip-down .crease-shadow { animation: none; }
+    .leaf.flip-up, .leaf.flip-down, .leaf.flip-up .crease-shadow, .leaf.flip-down .crease-shadow, .leaf.flip-up .crease-light, .leaf.flip-down .crease-light { animation: none; }
     .stamp.show { animation: stampFade .9s ease forwards; }
   }
   @keyframes stampFade { 0%{opacity:0;} 20%{opacity:1;} 80%{opacity:1;} 100%{opacity:0;} }
@@ -152,13 +190,13 @@
     box-sizing: border-box; border: 1px solid var(--line); padding: 18px; border-radius: 6px;
   }
 
-  #borrarTodo { display: block; margin: 24px auto 0; background: none; border: none; color: var(--coral); font-size: 0.8rem; padding: 8px; }
+  #borrarTodo { display: block; margin: 10px auto 0; background: none; border: none; color: var(--coral); font-size: 0.75rem; padding: 4px; }
   .anular { background: none; border: 1.5px solid var(--coral); color: var(--coral); border-radius: 10px; padding: 10px 14px; font-weight: 700; margin-top: 12px; }
   .anular:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
-  <h1 id="mesHeader" class="rounded"></h1>
+  <h1 id="mesHeader"></h1>
   <div id="notebook">
     <div class="spiral"></div>
     <div class="pagina-cara pila pila-2" aria-hidden="true"></div>
@@ -168,6 +206,7 @@
       <div id="faceFront" class="pagina-cara face-front"></div>
       <div class="face face-back"></div>
       <div class="crease-shadow"></div>
+      <div class="crease-light"></div>
     </div>
     <div id="stamp" class="stamp">GUARDADO</div>
   </div>
@@ -197,6 +236,12 @@
     const medidor = document.getElementById('medidor');
     medidor.style.width = notebook.clientWidth + 'px';
     medidor.innerHTML = html;
+    // El recibo-preview se oculta condicionalmente vía JS en actualizarRecibo()
+    // (sobre el nodo real, después de esta medición). Replicamos aquí esa misma
+    // condición para que el cuaderno no reserve un hueco vacío mientras la caja
+    // está oculta.
+    const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
+    if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
     const alto = Math.max(medidor.offsetHeight, 160);
     notebook.style.setProperty('--alto-notebook', alto + 'px');
   }
@@ -219,8 +264,16 @@
 
     document.getElementById('mesHeader').textContent = nombreMes(mesKey);
     document.getElementById('resumen').innerHTML = `
-      <div class="resumen-total rounded"><strong>Total: ${moneda(resumen.total)}</strong></div>
-      <div class="resumen-desglose">${CATEGORIAS.map(cat => `${cat}: ${moneda(resumen.porCategoria[cat])}`).join(' · ')}</div>
+      <div class="resumen-total-mes rounded">Total del mes: ${moneda(resumen.total)}</div>
+      <div class="resumen-filas">
+        ${CATEGORIAS.map(cat => `
+          <div class="resumen-fila">
+            <span class="barra ${BADGE_CATEGORIA[cat].replace('badge-', 'barra-')}"></span>
+            <span class="nombre">${cat}</span>
+            <span class="monto">${moneda(resumen.porCategoria[cat])}</span>
+          </div>
+        `).join('')}
+      </div>
     `;
 
     const contenidoActual = estado.posicion === -1 ? 'portada' : paginas[estado.posicion];
@@ -277,10 +330,12 @@
       return `
         <div class="masthead rounded">Recibo</div>
         <input type="number" id="monto" inputmode="decimal" placeholder="Monto">
-        <div class="recibo-preview"><pre id="reciboPreview" class="content"></pre></div>
+        <div class="recibo-preview" id="reciboPreviewBox"><pre id="reciboPreview" class="content"></pre></div>
+        <div class="grupo-titulo">Categoría</div>
         <div class="chips" id="chipsCategoria">
-          ${CATEGORIAS.map(c => `<button type="button" class="chip" data-cat="${c}">${c}</button>`).join('')}
+          ${CATEGORIAS.map(c => `<button type="button" class="chip chip-cat ${BADGE_CATEGORIA[c].replace('badge-', 'chip-')}" data-cat="${c}">${c}</button>`).join('')}
         </div>
+        <div class="grupo-titulo">Forma de pago</div>
         <div class="chips" id="chipsPago">
           ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
         </div>
@@ -288,13 +343,14 @@
       `;
     }
     const badgeClase = BADGE_CATEGORIA[contenido.categoria] || 'badge-hogar';
+    const bordeClase = badgeClase.replace('badge-', 'borde-');
     const iniciales = INICIALES_CATEGORIA[contenido.categoria] || '?';
     return `
-      <div class="hoja-escrita">
+      <div class="hoja-escrita ${bordeClase}">
         <div class="masthead rounded">Recibo</div>
-        <p class="content"><span class="badge ${badgeClase}">${iniciales}</span>${contenido.categoria}</p>
-        <p class="content">${contenido.pago}</p>
-        <p class="content">${moneda(contenido.monto)}</p>
+        <p class="monto-grande rounded">${moneda(contenido.monto)}</p>
+        <p class="content detalle-secundario"><span class="badge ${badgeClase}">${iniciales}</span>${contenido.categoria}</p>
+        <p class="content detalle-secundario">${contenido.pago}</p>
         <button class="anular" data-id="${contenido.id}">Anular este gasto</button>
       </div>
     `;
@@ -315,13 +371,19 @@
 
   let animando = false;
 
-  function moverPagina(direccion) {
-    if (animando) return;
+  function commitCambioPagina(direccion) {
     const posicionAnterior = estado.posicion;
     estado.posicion += (direccion === 'arriba' ? -1 : 1);
     const datos = render();
+    const alcanzoLimite = estado.posicion === posicionAnterior;
+    return { datos, alcanzoLimite };
+  }
+
+  function moverPagina(direccion) {
+    if (animando) return;
+    const { datos, alcanzoLimite } = commitCambioPagina(direccion);
     const leaf = document.getElementById('leaf');
-    if (estado.posicion === posicionAnterior) {
+    if (alcanzoLimite) {
       leaf.classList.remove('rebote'); void leaf.offsetWidth; leaf.classList.add('rebote');
       return;
     }
@@ -338,8 +400,6 @@
       leaf.style.transform = 'rotateX(0deg)';
       leaf.classList.remove('flip-up', 'flip-down');
       document.getElementById('faceFront').innerHTML = datos.html;
-      // Vaciar pageUnder evita ids duplicados (monto, chips, guardarBtn) entre
-      // la cara visible y la hoja de abajo; se vuelve a llenar en el próximo doblez.
       document.getElementById('pageUnder').innerHTML = '';
       marcarSeleccionActiva();
       actualizarGuardar();
@@ -347,11 +407,117 @@
       leaf.removeEventListener('animationend', terminar);
       animando = false;
     };
-    // `animationend` no se dispara si prefers-reduced-motion desactiva la animación
-    // (animation: none), así que un timeout de respaldo garantiza que la hoja
-    // siempre termine de intercambiar su contenido.
     leaf.addEventListener('animationend', terminar, { once: true });
     setTimeout(terminar, 750);
+  }
+
+  let arrastrePagina = null;
+
+  function empezarArrastrePagina(direccion) {
+    if (animando) return false;
+    const { datos, alcanzoLimite } = commitCambioPagina(direccion);
+    const notebook = document.getElementById('notebook');
+    const leaf = document.getElementById('leaf');
+    const crease = leaf.querySelector('.crease-shadow');
+    const creaseLight = leaf.querySelector('.crease-light');
+
+    notebook.style.transition = 'none';
+    leaf.style.transition = 'none';
+    leaf.classList.remove('flip-up', 'flip-down', 'rebote');
+    leaf.style.transform = 'rotateX(0deg) scaleY(1)';
+    leaf.style.borderRadius = '6px';
+    crease.style.transition = 'none';
+    crease.style.opacity = '0';
+    creaseLight.style.transition = 'none';
+    creaseLight.style.opacity = '0';
+    document.getElementById('pageUnder').innerHTML = alcanzoLimite ? '' : datos.html;
+
+    animando = true;
+    arrastrePagina = { direccion, alcanzoLimite, datos, anguloActual: 0 };
+    return true;
+  }
+
+  function actualizarArrastrePagina(deltaEnDireccion) {
+    if (!arrastrePagina) return;
+    const notebook = document.getElementById('notebook');
+    const leaf = document.getElementById('leaf');
+    const crease = leaf.querySelector('.crease-shadow');
+    const creaseLight = leaf.querySelector('.crease-light');
+    const alto = notebook.clientHeight || 220;
+
+    let angulo = anguloDesdeArrastre(Math.max(0, deltaEnDireccion), alto);
+    if (arrastrePagina.alcanzoLimite) angulo = Math.min(angulo, 18);
+
+    const anguloConSigno = arrastrePagina.direccion === 'arriba' ? -angulo : angulo;
+    const curvatura = opacidadPliegue(angulo);
+    leaf.style.transform = `rotateX(${anguloConSigno}deg) scaleY(${1 - curvatura * 0.03})`;
+    leaf.style.borderRadius = `6px 6px ${6 + curvatura * 12}px ${6 + curvatura * 12}px`;
+    crease.style.opacity = String(curvatura);
+    creaseLight.style.opacity = String(curvatura * 0.6);
+    arrastrePagina.anguloActual = angulo;
+  }
+
+  function terminarArrastrePagina() {
+    if (!arrastrePagina) return;
+    const { direccion, alcanzoLimite, anguloActual, datos } = arrastrePagina;
+    const notebook = document.getElementById('notebook');
+    const leaf = document.getElementById('leaf');
+    const crease = leaf.querySelector('.crease-shadow');
+    const creaseLight = leaf.querySelector('.crease-light');
+    const completar = !alcanzoLimite && debeCompletarDoblez(anguloActual);
+
+    leaf.style.transition = 'transform .35s cubic-bezier(.34,1.56,.64,1), border-radius .35s ease';
+    crease.style.transition = 'opacity .35s ease';
+    creaseLight.style.transition = 'opacity .35s ease';
+
+    if (completar) {
+      const anguloFinal = direccion === 'arriba' ? -180 : 180;
+      leaf.style.transform = `rotateX(${anguloFinal}deg) scaleY(1)`;
+      leaf.style.borderRadius = '6px';
+      crease.style.opacity = '0';
+      creaseLight.style.opacity = '0';
+      setTimeout(() => {
+        leaf.style.transition = '';
+        leaf.style.transform = 'rotateX(0deg)';
+        leaf.style.borderRadius = '';
+        document.getElementById('faceFront').innerHTML = datos.html;
+        document.getElementById('pageUnder').innerHTML = '';
+        crease.style.transition = '';
+        crease.style.opacity = '';
+        creaseLight.style.transition = '';
+        creaseLight.style.opacity = '';
+        notebook.style.transition = '';
+        marcarSeleccionActiva();
+        actualizarGuardar();
+        actualizarRecibo();
+        animando = false;
+        arrastrePagina = null;
+      }, 350);
+      return;
+    }
+
+    if (!alcanzoLimite) {
+      estado.posicion += (direccion === 'arriba' ? 1 : -1);
+      render();
+    } else {
+      notebook.classList.remove('rebote'); void notebook.offsetWidth; notebook.classList.add('rebote');
+    }
+    leaf.style.transform = 'rotateX(0deg) scaleY(1)';
+    leaf.style.borderRadius = '6px';
+    crease.style.opacity = '0';
+    creaseLight.style.opacity = '0';
+    setTimeout(() => {
+      leaf.style.transition = '';
+      leaf.style.borderRadius = '';
+      crease.style.transition = '';
+      crease.style.opacity = '';
+      creaseLight.style.transition = '';
+      creaseLight.style.opacity = '';
+      document.getElementById('pageUnder').innerHTML = '';
+      notebook.style.transition = '';
+      animando = false;
+      arrastrePagina = null;
+    }, 350);
   }
 
   function guardarGasto() {
@@ -385,6 +551,12 @@
   // al instante, sin reiniciar la animación completa.
   let lineasEscritas = {};
 
+  function reciboTieneContenido() {
+    const montoInput = document.getElementById('monto');
+    const monto = montoInput ? parseFloat(montoInput.value) : NaN;
+    return Boolean(seleccion.categoria || seleccion.pago || monto > 0);
+  }
+
   function actualizarRecibo() {
     const el = document.getElementById('reciboPreview');
     if (!el) return;
@@ -412,6 +584,7 @@
       const linea = el.querySelector(`[data-linea="${key}"]`);
       const texto = valores[key];
       if (!texto) {
+        clearInterval(linea._intervalo);
         linea.style.display = 'none';
         linea.textContent = '';
         delete lineasEscritas[key];
@@ -420,10 +593,21 @@
       linea.style.display = '';
       if (lineasEscritas[key] !== texto) {
         if (!lineasEscritas[key]) escribirTexto(linea, texto);
-        else linea.textContent = texto;
+        else {
+          // El reemplazo instantáneo también debe cortar el intervalo de la
+          // animación de máquina de escribir si todavía estaba corriendo,
+          // o sus caracteres pendientes se siguen agregando por encima del
+          // texto nuevo (se vio como texto pegado/duplicado al cambiar de
+          // categoría muy rápido).
+          clearInterval(linea._intervalo);
+          linea.textContent = texto;
+        }
         lineasEscritas[key] = texto;
       }
     });
+
+    const contenedor = document.getElementById('reciboPreviewBox');
+    if (contenedor) contenedor.style.display = reciboTieneContenido() ? '' : 'none';
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
@@ -482,8 +666,8 @@
       setTimeout(() => {
         notebook.classList.remove(direccion, 'mes-mostrar');
         animando = false;
-      }, 240);
-    }, 200);
+      }, 350);
+    }, 260);
   }
 
   document.getElementById('btnMesAnterior').addEventListener('click', () => cambiarMes(-1));
@@ -500,55 +684,63 @@
   });
 
   (function gestos() {
-    // Un solo punto de partida compartido entre los dos ejes: así, ante un
-    // swipe en diagonal, se decide UNA sola dirección (la de mayor
-    // desplazamiento) en vez de disparar el paso de página y el cambio de
-    // mes a la vez.
-    const UMBRAL_Y = 40;
+    const UMBRAL_EJE = 10;
     const UMBRAL_X = 60;
     let inicio = null;
-    let arrastrando = false;
+    let eje = null;
 
     function esCampoInteractivo(el) {
       return !!(el && el.closest && el.closest('input, textarea, select, button, .chip, .anular, [contenteditable]'));
     }
 
     function empezar(x, y, target) {
-      // El respaldo de mouse no debe dispararse arrastrando dentro de un
-      // campo de texto, un botón o un chip -- eso es una interacción normal
-      // con el formulario, no un gesto de navegación.
-      if (esCampoInteractivo(target)) { inicio = null; arrastrando = false; return; }
+      if (esCampoInteractivo(target)) { inicio = null; eje = null; return; }
       inicio = { x, y };
-      arrastrando = true;
+      eje = null;
     }
 
-    function terminar(x, y) {
-      arrastrando = false;
-      if (inicio === null) return;
+    function mover(x, y, evento) {
+      if (!inicio) return;
       const deltaX = x - inicio.x;
       const deltaY = y - inicio.y;
-      inicio = null;
-      if (Math.abs(deltaX) > Math.abs(deltaY)) {
-        if (deltaX <= -UMBRAL_X) cambiarMes(1);
-        else if (deltaX >= UMBRAL_X) cambiarMes(-1);
-      } else {
-        if (deltaY <= -UMBRAL_Y) moverPagina('arriba');
-        else if (deltaY >= UMBRAL_Y) moverPagina('abajo');
+
+      if (eje === null) {
+        if (Math.abs(deltaX) < UMBRAL_EJE && Math.abs(deltaY) < UMBRAL_EJE) return;
+        eje = Math.abs(deltaX) > Math.abs(deltaY) ? 'horizontal' : 'vertical';
+        if (eje === 'vertical') {
+          const direccion = deltaY < 0 ? 'arriba' : 'abajo';
+          empezarArrastrePagina(direccion);
+        }
+      }
+
+      if (eje === 'vertical' && arrastrePagina) {
+        if (evento.cancelable) evento.preventDefault();
+        const deltaEnDireccion = arrastrePagina.direccion === 'arriba' ? -deltaY : deltaY;
+        actualizarArrastrePagina(deltaEnDireccion);
+      } else if (eje === 'horizontal') {
+        if (evento.cancelable) evento.preventDefault();
       }
     }
 
+    function terminar(x, y) {
+      if (eje === 'vertical' && arrastrePagina) {
+        terminarArrastrePagina();
+      } else if (eje === 'horizontal' && inicio) {
+        const deltaX = x - inicio.x;
+        if (deltaX <= -UMBRAL_X) cambiarMes(1);
+        else if (deltaX >= UMBRAL_X) cambiarMes(-1);
+      }
+      inicio = null;
+      eje = null;
+    }
+
     const notebook = document.getElementById('notebook');
-    // Los gestos quedan acotados al cuaderno (no a toda la página). Con
-    // `touch-action: none` en #notebook más este preventDefault en
-    // touchmove, Safari deja de interpretar el arrastre como scroll/rebote
-    // elástico de la página -- eso era lo que a veces se sentía como si
-    // Safari "recargara" en vez de pasar la hoja.
     notebook.addEventListener('touchstart', (e) => empezar(e.touches[0].clientX, e.touches[0].clientY, e.target), { passive: true });
-    notebook.addEventListener('touchmove', (e) => { if (arrastrando) e.preventDefault(); }, { passive: false });
+    notebook.addEventListener('touchmove', (e) => mover(e.touches[0].clientX, e.touches[0].clientY, e), { passive: false });
     notebook.addEventListener('touchend', (e) => terminar(e.changedTouches[0].clientX, e.changedTouches[0].clientY));
 
-    // Respaldo para probar con mouse en el navegador de escritorio
     notebook.addEventListener('mousedown', (e) => empezar(e.clientX, e.clientY, e.target));
+    document.addEventListener('mousemove', (e) => { if (inicio) mover(e.clientX, e.clientY, e); });
     document.addEventListener('mouseup', (e) => terminar(e.clientX, e.clientY));
   })();
 
