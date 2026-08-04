@@ -290,7 +290,7 @@
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
-    const alto = Math.max(medidor.offsetHeight + 130, 160);
+    const alto = Math.max(medidor.offsetHeight + 260, 160);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
