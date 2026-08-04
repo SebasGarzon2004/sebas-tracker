@@ -36,6 +36,13 @@
     display: flex; flex-direction: column; min-height: 100%;
   }
 
+  #mesNav { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  #mesNav button {
+    background: none; border: none; color: var(--gold); font-size: 1.9rem; line-height: 1;
+    padding: 4px 8px; font-family: Georgia, serif;
+  }
+  #mesNav button:disabled { opacity: 0.25; }
+  #mesNav button:active:not(:disabled) { transform: scale(0.88); }
   #mesHeader {
     text-align: center; font-family: 'Snell Roundhand', 'Bradley Hand', cursive, ui-rounded, -apple-system, sans-serif;
     font-size: 2.1rem; font-weight: 600; letter-spacing: 0.01em; margin: 4px 0 6px;
@@ -194,7 +201,11 @@
 </style>
 </head>
 <body>
-  <h1 id="mesHeader"></h1>
+  <div id="mesNav">
+    <button id="btnMesAnteriorVisible" aria-label="Mes anterior">‹</button>
+    <h1 id="mesHeader"></h1>
+    <button id="btnMesSiguienteVisible" aria-label="Mes siguiente">›</button>
+  </div>
   <div id="notebook">
     <div class="pagina-cara pila pila-2" aria-hidden="true"></div>
     <div class="pagina-cara pila pila-1" aria-hidden="true"></div>
@@ -303,6 +314,8 @@
 
     document.getElementById('btnMesAnterior').disabled = estado.mesIndex === 0;
     document.getElementById('btnMesSiguiente').disabled = estado.mesIndex === meses.length - 1;
+    document.getElementById('btnMesAnteriorVisible').disabled = estado.mesIndex === 0;
+    document.getElementById('btnMesSiguienteVisible').disabled = estado.mesIndex === meses.length - 1;
     document.getElementById('btnArriba').disabled = estado.posicion === -1;
     document.getElementById('btnAbajo').disabled = estado.posicion === paginas.length - 1;
 
@@ -763,6 +776,8 @@
 
   document.getElementById('btnMesAnterior').addEventListener('click', () => cambiarMes(-1));
   document.getElementById('btnMesSiguiente').addEventListener('click', () => cambiarMes(1));
+  document.getElementById('btnMesAnteriorVisible').addEventListener('click', () => cambiarMes(-1));
+  document.getElementById('btnMesSiguienteVisible').addEventListener('click', () => cambiarMes(1));
   document.getElementById('btnArriba').addEventListener('click', () => moverPagina('arriba'));
   document.getElementById('btnAbajo').addEventListener('click', () => moverPagina('abajo'));
 
