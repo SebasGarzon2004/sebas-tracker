@@ -164,8 +164,8 @@
   .stamp { position: absolute; top: 40%; left: 50%; width: 150px; padding: 6px 0; border: 3px solid var(--coral); color: var(--coral); font-weight: bold; text-align: center; letter-spacing: .1em; transform: translate(-50%,-50%) rotate(-14deg) scale(1); opacity: 0; pointer-events: none; z-index: 10; }
   .stamp.show { animation: stampPop .9s ease forwards; }
   @keyframes stampPop { 0%{opacity:0; transform:translate(-50%,-50%) rotate(-14deg) scale(2.2);} 30%{opacity:1; transform:translate(-50%,-50%) rotate(-14deg) scale(1);} 75%{opacity:1;} 100%{opacity:0; transform:translate(-50%,-50%) rotate(-14deg) scale(1);} }
-  .leaf.saliendo-arriba { animation: saleArriba .32s cubic-bezier(.4,0,.2,1) forwards; }
-  .leaf.saliendo-abajo { animation: saleAbajo .32s cubic-bezier(.4,0,.2,1) forwards; }
+  .leaf.saliendo-arriba { animation: saleArriba .2s cubic-bezier(.4,0,.2,1) forwards; }
+  .leaf.saliendo-abajo { animation: saleAbajo .2s cubic-bezier(.4,0,.2,1) forwards; }
   @keyframes saleArriba {
     0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
     100% { transform: translateY(-115%) rotate(-3deg) scale(0.92); opacity: 0; }
@@ -456,7 +456,7 @@
       animando = false;
     };
     leaf.addEventListener('animationend', terminar, { once: true });
-    setTimeout(terminar, 400);
+    setTimeout(terminar, 260);
   }
 
   let arrastrePagina = null;
@@ -506,7 +506,7 @@
     const completar = !alcanzoLimite && debeCompletarDoblez(anguloActual);
     const signo = direccion === 'arriba' ? -1 : 1;
 
-    leaf.style.transition = 'transform .32s cubic-bezier(.4,0,.2,1), opacity .32s ease';
+    leaf.style.transition = 'transform .2s cubic-bezier(.4,0,.2,1), opacity .2s ease';
 
     if (completar) {
       leaf.style.transform = `translateY(${signo * 115}%) rotate(${signo * 3}deg) scale(0.92)`;
@@ -523,7 +523,7 @@
         actualizarRecibo();
         animando = false;
         arrastrePagina = null;
-      }, 320);
+      }, 200);
       return;
     }
 
@@ -543,7 +543,7 @@
       notebook.style.transition = '';
       animando = false;
       arrastrePagina = null;
-    }, 320);
+    }, 200);
   }
 
   function guardarGasto() {
