@@ -435,7 +435,9 @@
     animando = true;
     leaf.classList.remove('saliendo-arriba', 'saliendo-abajo');
     void leaf.offsetWidth;
-    document.getElementById('pageUnder').innerHTML = datos.html;
+    const pageUnder = document.getElementById('pageUnder');
+    pageUnder.innerHTML = datos.html;
+    ocultarCajaReciboVacia(pageUnder);
     leaf.classList.add(direccion === 'arriba' ? 'saliendo-arriba' : 'saliendo-abajo');
 
     let terminado = false;
@@ -470,7 +472,9 @@
     leaf.classList.remove('saliendo-arriba', 'saliendo-abajo', 'rebote');
     leaf.style.transform = 'translateY(0) rotate(0deg) scale(1)';
     leaf.style.opacity = '1';
-    document.getElementById('pageUnder').innerHTML = alcanzoLimite ? '' : datos.html;
+    const pageUnder = document.getElementById('pageUnder');
+    pageUnder.innerHTML = alcanzoLimite ? '' : datos.html;
+    if (!alcanzoLimite) ocultarCajaReciboVacia(pageUnder);
 
     animando = true;
     arrastrePagina = { direccion, alcanzoLimite, datos, anguloActual: 0 };
@@ -581,6 +585,17 @@
     const monto = montoInput ? parseFloat(montoInput.value) : NaN;
     const nota = notaInput ? notaInput.value.trim() : '';
     return Boolean(seleccion.categoria || seleccion.pago || monto > 0 || nota);
+  }
+
+  // La copia de la hoja en blanco que se pone en #pageUnder durante la
+  // transición (mientras la hoja vieja se desliza) nunca pasa por
+  // actualizarRecibo() — ese ocultamiento solo corre cuando la página se
+  // vuelve la real en #faceFront al terminar. Sin este ajuste, la caja de
+  // vista previa se veía vacía y visible durante todo el arrastre, y recién
+  // desaparecía de golpe al asentarse la página.
+  function ocultarCajaReciboVacia(contenedor) {
+    const caja = contenedor && contenedor.querySelector('#reciboPreviewBox');
+    if (caja) caja.style.display = reciboTieneContenido() ? '' : 'none';
   }
 
   function actualizarRecibo() {
