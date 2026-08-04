@@ -64,12 +64,12 @@
   }
   #mesHeader::after { content: ''; display: block; width: 48px; height: 2px; background: var(--gold); margin: 6px auto 0; border-radius: 2px; }
 
-  #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--card); box-shadow: var(--shadow); }
-  .resumen-total-mes { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
-  .resumen-filas { display: flex; flex-direction: column; gap: 6px; }
-  .resumen-fila { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; }
+  #resumen { padding: 18px 20px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--card); box-shadow: var(--shadow); }
+  .resumen-total-mes { font-size: 1.7rem; font-weight: 700; margin-bottom: 14px; }
+  .resumen-filas { display: flex; flex-direction: column; gap: 10px; }
+  .resumen-fila { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; cursor: pointer; }
   .resumen-fila:active { opacity: 0.65; }
-  .resumen-fila .barra { width: 5px; height: 16px; border-radius: 3px; flex-shrink: 0; }
+  .resumen-fila .barra { width: 6px; height: 20px; border-radius: 3px; flex-shrink: 0; }
   .resumen-fila .nombre { flex: 1; color: var(--ink); }
   .resumen-fila .monto { color: var(--muted); font-variant-numeric: tabular-nums; }
   .cambio-mes { margin-left: 8px; font-size: 0.78rem; font-weight: 600; vertical-align: middle; }
@@ -285,10 +285,23 @@
   // un único alto de cuaderno en vez de medirse cada una por su cuenta — si no,
   // pasar de la hoja en blanco (la más alta, con todos los campos) a un recibo
   // guardado (mucho más corto) se sentía como una transición rota, con la
-  // tarjeta encogiéndose de golpe. `alturaReferencia` solo crece, nunca baja,
-  // así que en cuanto se mide la hoja en blanco una vez, esa altura queda
-  // fija para el resto de páginas también.
+  // tarjeta encogiéndose de golpe. Dentro de una misma página, mientras el
+  // usuario la llena (categoría, pago, monto, nota), `alturaReferencia` solo
+  // crece — así la tarjeta no se encoge de golpe con cada campo que se borra.
+  // Pero al navegar de verdad a otra página (`resetearAltura`, llamado desde
+  // `commitCambioPagina` y `cambiarMes`), se vuelve a medir desde cero contra
+  // la página que va a quedar visible: si no, una tarjeta alguna vez inflada
+  // por un formulario lleno se queda así para siempre, dejando un hueco vacío
+  // debajo de páginas más cortas (como la hoja en blanco recién abierta) —
+  // #notebook ya anima los cambios de alto con `transition: height .25s ease`,
+  // así que encoger tampoco se siente brusco.
   let alturaReferencia = 0;
+
+  function resetearAltura() {
+    const faceFront = document.getElementById('faceFront');
+    alturaReferencia = 0;
+    if (faceFront && faceFront.innerHTML) ajustarAltura(faceFront.innerHTML);
+  }
 
   function ajustarAltura(html) {
     const notebook = document.getElementById('notebook');
@@ -548,6 +561,7 @@
   const DISTANCIA_DOBLEZ_COMPLETO = 230;
 
   function commitCambioPagina(direccion) {
+    resetearAltura();
     const posicionAnterior = estado.posicion;
     estado.posicion += (direccion === 'arriba' ? -1 : 1);
     const datos = render();
@@ -969,6 +983,7 @@
     notebook.classList.add('mes-saliendo', direccion);
 
     setTimeout(() => {
+      resetearAltura();
       estado.mesIndex = nuevoIndex;
       estado.posicion = -1;
       if (estado.categoriaFiltro || estado.pagoFiltro) estado._saltarAlFiltrar = true;

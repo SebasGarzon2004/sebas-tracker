@@ -25,23 +25,31 @@ test('mesesDisponibles incluye siempre el mes actual, incluso sin gastos', () =>
   const grupos = { '2026-06': [], '2026-08': [] };
   assert.deepStrictEqual(
     mesesDisponibles(grupos, '2026-08'),
-    ['2026-06', '2026-07', '2026-08', '2026-09', '2026-10']
+    ['2026-06', '2026-08', '2026-09', '2026-10']
   );
   assert.deepStrictEqual(
     mesesDisponibles(grupos, '2026-09'),
-    ['2026-06', '2026-07', '2026-08', '2026-09', '2026-10', '2026-11']
+    ['2026-06', '2026-08', '2026-09', '2026-10', '2026-11']
   );
 });
 
-test('mesesDisponibles agrega 2 meses atrás y 2 adelante del actual, incluso cruzando de año', () => {
+test('mesesDisponibles agrega solo hacia adelante (2 meses) del actual si están vacíos, incluso cruzando de año', () => {
   const grupos = {};
   assert.deepStrictEqual(
     mesesDisponibles(grupos, '2026-01'),
-    ['2025-11', '2025-12', '2026-01', '2026-02', '2026-03']
+    ['2026-01', '2026-02', '2026-03']
   );
   assert.deepStrictEqual(
     mesesDisponibles(grupos, '2026-12'),
-    ['2026-10', '2026-11', '2026-12', '2027-01', '2027-02']
+    ['2026-12', '2027-01', '2027-02']
+  );
+});
+
+test('mesesDisponibles no rellena meses pasados vacíos, pero sí conserva los que tienen gastos reales', () => {
+  const grupos = { '2026-03': [{ id: 1 }] };
+  assert.deepStrictEqual(
+    mesesDisponibles(grupos, '2026-08'),
+    ['2026-03', '2026-08', '2026-09', '2026-10']
   );
 });
 

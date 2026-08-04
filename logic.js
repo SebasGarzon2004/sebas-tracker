@@ -27,12 +27,16 @@ function sumarMeses(mesKey, delta) {
 }
 
 // Además de los meses con gastos guardados, se puede navegar a los 2 meses
-// anteriores y los 2 siguientes al actual, aunque estén vacíos — para poder
-// probar la navegación entre meses sin depender de tener datos ahí.
+// siguientes al actual, aunque estén vacíos — para poder probar la
+// navegación hacia adelante sin depender de tener datos ahí todavía. Hacia
+// atrás NO se rellenan meses vacíos: un mes pasado solo aparece si de verdad
+// tiene gastos guardados (vía Object.keys(gastosPorMes) más arriba); si no,
+// deslizar hacia atrás no debería mostrar páginas vacías que nunca van a
+// tener datos.
 function mesesDisponibles(gastosPorMes, mesActualKey) {
   const keys = new Set(Object.keys(gastosPorMes));
   keys.add(mesActualKey);
-  for (let delta = -2; delta <= 2; delta++) {
+  for (let delta = 0; delta <= 2; delta++) {
     keys.add(sumarMeses(mesActualKey, delta));
   }
   return Array.from(keys).sort();
