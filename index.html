@@ -852,6 +852,18 @@
     render();
   });
 
+  // En iPhone, tocar un botón mientras un input todavía tiene el teclado
+  // abierto a veces solo le quita el foco a ese input (cerrando el teclado)
+  // sin que el toque llegue a disparar el clic del botón — hay que tocar dos
+  // veces. Para "Guardar gasto" eso es especialmente molesto (parece que no
+  // pasó nada), así que se dispara directo en touchend, sin esperar el
+  // clic sintético que Safari puede perderse en esa combinación.
+  document.getElementById('notebook').addEventListener('touchend', (e) => {
+    if (e.target.id !== 'guardarBtn') return;
+    e.preventDefault();
+    guardarGasto();
+  }, { passive: false });
+
   document.getElementById('notebook').addEventListener('input', (e) => {
     if (e.target.id === 'monto') formatearMontoInput(e.target);
     if (e.target.id === 'monto' || e.target.id === 'nota') { actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); }
