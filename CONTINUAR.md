@@ -10,6 +10,11 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 - No hay ningún worktree activo — todo el trabajo se hizo commit por commit directo sobre `master`.
 - Las 14 pruebas de `node --test logic.test.js` pasan (se agregó una para `mesesDisponibles` sin romper las 13 originales).
 
+## Ajustes del 2026-08-04 (tercera pasada, tras probar en iPhone instalado como PWA)
+
+- **Margen a los lados y abajo:** el `body` tenía `padding: 16px` parejo por los cuatro lados. Se dejó el top igual (16px, sin tocar) y se subieron los laterales a 20px y el fondo a 28px, sumando `env(safe-area-inset-*)` para que en el iPhone (con `viewport-fit=cover` en el manifest) también respete el redondeo de esquinas y la barra de gestos de abajo.
+- **Diferencia entre Safari normal y la app instalada (standalone):** no había ningún `100vh` en el proyecto (se revisó a fondo), así que no era ese el problema típico. La causa real: en Safari normal la barra del navegador ya le resta espacio al viewport, así que el `padding: 16px` del body quedaba con aire de sobra visualmente; en modo standalone (`display: standalone` del manifest, sin esa barra) el contenido ocupa la pantalla completa borde a borde, y ese mismo padding se ve pegado al filo real del celular y a la muesca/barra de gestos. Con `env(safe-area-inset-*)` sumado al padding, el margen se ajusta solo según haya o no zona segura que respetar, así que se ve consistente en ambos modos.
+
 ## Ajustes del 2026-08-04 (segunda pasada, con Ryan)
 
 - **Hueco vacío bajo la hoja de recibo:** la altura compartida entre portada, hoja en blanco y recibos guardados (`--alto-notebook`) solo crecía y nunca bajaba, así que una vez se inflaba (por ejemplo llenando categoría+pago+monto), esa altura se quedaba pegada para siempre, dejando un hueco debajo del campo Nota en la hoja en blanco recién abierta. Se agregó `resetearAltura()`, llamada en los puntos reales de navegación (`commitCambioPagina`, usado por swipe/botones, y `cambiarMes`), que recalcula la altura desde cero contra la página que va a quedar visible. Dentro de una misma página, mientras se llena el formulario, la altura sigue solo creciendo (para no encogerse de golpe mientras se escribe). La transición sigue suave porque `#notebook` ya animaba los cambios de alto por CSS (`transition: height .25s ease`).
