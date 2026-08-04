@@ -105,18 +105,25 @@
 
   .masthead { font-weight: bold; letter-spacing: 0.08em; text-transform: uppercase; padding-bottom: 8px; margin-bottom: 10px; border-bottom: 1px dashed var(--line); }
   .content { font-family: 'Courier New', monospace; }
-  .monto-grande { font-size: 2rem; font-weight: 700; margin: 4px 0 10px; }
-  .detalle-secundario { color: var(--muted); font-size: 0.85rem; margin: 2px 0; }
+  .monto-grande { font-size: 2.9rem; font-weight: 700; margin: 8px 0 14px; }
+  .detalle-secundario { color: var(--muted); font-size: 1.05rem; margin: 2px 0; }
   .nota-gasto { font-style: italic; }
-  .fecha-gasto { font-size: 0.78rem; margin-top: 6px; }
+  .fecha-gasto { font-size: 0.85rem; margin-top: 6px; }
+  .portada { height: 100%; box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .portada .masthead { font-size: 1.3rem; border-bottom: none; padding-bottom: 0; }
+  .portada .content { font-size: 1.6rem; margin-top: 10px; }
 
-  .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 20px; padding: 0 4px; border-radius: 5px; color: #fff; font-weight: bold; font-size: 0.7rem; letter-spacing: 0.02em; margin-right: 6px; }
+  .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 32px; height: 24px; padding: 0 5px; border-radius: 6px; color: #fff; font-weight: bold; font-size: 0.78rem; letter-spacing: 0.02em; margin-right: 8px; }
   .badge-shaun { background: var(--tag-shaun); }
   .badge-swift { background: var(--tag-swift); }
   .badge-salidas { background: var(--tag-salidas); }
   .badge-gp { background: var(--tag-gp); }
   .badge-hogar { background: var(--tag-hogar); }
-  .hoja-escrita { border-left: 5px solid transparent; padding-left: 13px; margin: -18px -18px -18px -13px; padding-top: 0; padding-right: 0; padding-bottom: 0; }
+  .hoja-escrita {
+    border-left: 5px solid transparent; margin: -18px -18px -18px -13px; padding: 20px 20px 20px 15px;
+    box-sizing: border-box; min-height: calc(100% + 36px);
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
   .hoja-escrita.borde-shaun { border-left-color: var(--tag-shaun); }
   .hoja-escrita.borde-swift { border-left-color: var(--tag-swift); }
   .hoja-escrita.borde-salidas { border-left-color: var(--tag-salidas); }
@@ -238,6 +245,15 @@
 
   let estado = { mesIndex: null, posicion: -1 };
 
+  // Todas las páginas (portada, hoja en blanco, recibos guardados) comparten
+  // un único alto de cuaderno en vez de medirse cada una por su cuenta — si no,
+  // pasar de la hoja en blanco (la más alta, con todos los campos) a un recibo
+  // guardado (mucho más corto) se sentía como una transición rota, con la
+  // tarjeta encogiéndose de golpe. `alturaReferencia` solo crece, nunca baja,
+  // así que en cuanto se mide la hoja en blanco una vez, esa altura queda
+  // fija para el resto de páginas también.
+  let alturaReferencia = 0;
+
   function ajustarAltura(html) {
     const notebook = document.getElementById('notebook');
     const medidor = document.getElementById('medidor');
@@ -250,7 +266,8 @@
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
     const alto = Math.max(medidor.offsetHeight, 160);
-    notebook.style.setProperty('--alto-notebook', alto + 'px');
+    alturaReferencia = Math.max(alturaReferencia, alto);
+    notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
 
   function render() {
@@ -365,12 +382,14 @@
     const iniciales = INICIALES_CATEGORIA[contenido.categoria] || '?';
     return `
       <div class="hoja-escrita ${bordeClase}">
-        <div class="masthead rounded">Recibo</div>
-        <p class="monto-grande rounded">${moneda(contenido.monto)}</p>
-        <p class="content detalle-secundario"><span class="badge ${badgeClase}">${iniciales}</span>${contenido.categoria}</p>
-        <p class="content detalle-secundario">${contenido.pago}</p>
-        ${contenido.nota ? `<p class="content detalle-secundario nota-gasto">${escapeHtml(contenido.nota)}</p>` : ''}
-        <p class="content detalle-secundario fecha-gasto">${formatearFechaHora(contenido.fecha)}</p>
+        <div>
+          <div class="masthead rounded">Recibo</div>
+          <p class="monto-grande rounded">${moneda(contenido.monto)}</p>
+          <p class="content detalle-secundario"><span class="badge ${badgeClase}">${iniciales}</span>${contenido.categoria}</p>
+          <p class="content detalle-secundario">${contenido.pago}</p>
+          ${contenido.nota ? `<p class="content detalle-secundario nota-gasto">${escapeHtml(contenido.nota)}</p>` : ''}
+          <p class="content detalle-secundario fecha-gasto">${formatearFechaHora(contenido.fecha)}</p>
+        </div>
         <button class="anular" data-id="${contenido.id}">Anular este gasto</button>
       </div>
     `;
@@ -832,6 +851,7 @@
     document.addEventListener('mouseup', (e) => terminar(e.clientX, e.clientY));
   })();
 
+  ajustarAltura(htmlDePagina('blanco'));
   render();
 </script>
 </body>
