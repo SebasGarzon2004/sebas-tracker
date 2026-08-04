@@ -68,6 +68,17 @@
   .chip:active { transform: scale(0.96); }
   .chip.selected { border-color: var(--emerald); background: var(--emerald); color: #fff; box-shadow: 0 3px 10px rgba(31,111,84,0.35); transform: rotate(-2deg); }
   .chip.selected:nth-child(even) { transform: rotate(2deg); }
+  .grupo-titulo { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 14px 0 6px; }
+  .chip-shaun { border-color: var(--tag-shaun); color: var(--tag-shaun); }
+  .chip-swift { border-color: var(--tag-swift); color: var(--tag-swift); }
+  .chip-salidas { border-color: var(--tag-salidas); color: var(--tag-salidas); }
+  .chip-gp { border-color: var(--tag-gp); color: var(--tag-gp); }
+  .chip-hogar { border-color: var(--tag-hogar); color: var(--tag-hogar); }
+  .chip-cat.selected.chip-shaun { background: var(--tag-shaun); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-swift { background: var(--tag-swift); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-salidas { background: var(--tag-salidas); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-gp { background: var(--tag-gp); color: #fff; border-color: transparent; }
+  .chip-cat.selected.chip-hogar { background: var(--tag-hogar); color: #fff; border-color: transparent; }
 
   #monto { font-size: 1.4rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
   .recibo-preview { margin: 14px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); min-height: 60px; }
@@ -301,10 +312,12 @@
       return `
         <div class="masthead rounded">Recibo</div>
         <input type="number" id="monto" inputmode="decimal" placeholder="Monto">
-        <div class="recibo-preview"><pre id="reciboPreview" class="content"></pre></div>
+        <div class="recibo-preview" id="reciboPreviewBox"><pre id="reciboPreview" class="content"></pre></div>
+        <div class="grupo-titulo">Categoría</div>
         <div class="chips" id="chipsCategoria">
-          ${CATEGORIAS.map(c => `<button type="button" class="chip" data-cat="${c}">${c}</button>`).join('')}
+          ${CATEGORIAS.map(c => `<button type="button" class="chip chip-cat ${BADGE_CATEGORIA[c].replace('badge-', 'chip-')}" data-cat="${c}">${c}</button>`).join('')}
         </div>
+        <div class="grupo-titulo">Forma de pago</div>
         <div class="chips" id="chipsPago">
           ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
         </div>
@@ -548,6 +561,9 @@
         lineasEscritas[key] = texto;
       }
     });
+
+    const contenedor = document.getElementById('reciboPreviewBox');
+    if (contenedor) contenedor.style.display = Object.values(valores).some(Boolean) ? '' : 'none';
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
