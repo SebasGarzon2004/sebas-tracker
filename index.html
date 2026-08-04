@@ -287,12 +287,19 @@
       document.getElementById('faceFront').innerHTML = html;
       document.getElementById('pageUnder').innerHTML = html;
       window._paginaInicial = true;
+      // Solo se sincronizan los chips/inputs visibles cuando esta llamada a
+      // render() de verdad puso la página nueva en #faceFront. Cuando
+      // render() se usa solo para calcular datos.html de la página que va a
+      // entrar en la transición (commitCambioPagina, con la página vieja
+      // todavía en pantalla), llamar esto aquí tocaba de más la página que
+      // se estaba por ir — el propio flujo de la transición ya sincroniza
+      // esto cuando la página nueva realmente queda en #faceFront.
+      marcarSeleccionActiva();
+      actualizarGuardar();
+      actualizarRecibo();
     }
 
     ajustarAltura(html);
-    marcarSeleccionActiva();
-    actualizarGuardar();
-    actualizarRecibo();
 
     document.getElementById('btnMesAnterior').disabled = estado.mesIndex === 0;
     document.getElementById('btnMesSiguiente').disabled = estado.mesIndex === meses.length - 1;
