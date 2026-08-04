@@ -6,46 +6,51 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 
 ## Dónde está todo ahora mismo
 
-- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `7f0dfb8`.
-- No hay ningún worktree activo — todo el trabajo reciente se hizo commit por commit directo sobre `master`.
-- Las 12 pruebas de `node --test logic.test.js` pasan.
-- Servidor local para probar en el iPhone: `python3 serve-sin-cache.py 8010` (no usar `python3 -m http.server` a secas — Safari cachea versiones viejas y ya dio dolores de cabeza; este script manda `Cache-Control: no-store` en cada respuesta). Si Safari sigue mostrando algo viejo después de eso, hay que probar en una pestaña de **Navegación privada** — cerrar y reabrir la pestaña normal NO vacía la caché de archivos.
+- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `fc2034b`.
+- No hay ningún worktree activo — todo el trabajo se hizo commit por commit directo sobre `master`.
+- Las 13 pruebas de `node --test logic.test.js` pasan.
+- Servidor local para probar en el iPhone: `python3 serve-sin-cache.py 8010` (no usar `python3 -m http.server` a secas — Safari cachea versiones viejas; este script manda `Cache-Control: no-store` en cada respuesta). Si Safari sigue mostrando algo viejo después de eso, hay que probar en una pestaña de **Navegación privada**, o agregar `?v=<número que subes cada vez>` al final de la URL — cerrar y reabrir la pestaña normal NO vacía la caché de archivos.
 
-## Lo que se hizo y ya está en `master`
+## Próximo paso, en el orden que pidió Sebas
 
-**Ronda 1 y Ronda 2** (pulido visual, doblez interactivo, rediseño vintage completo) — ya fusionadas hace tiempo, sin pendientes propios.
+1. **PWA primero** (manifest.json + service worker + hosting real) — para que la app deje de depender de que el servidor local esté corriendo en la compu, y se pueda instalar de verdad en la pantalla de inicio del iPhone sin el rollo de la caché de Safari.
+2. **El atajo de Siri queda de último**, a propósito — Sebas lo dejó a medio armar (llegó hasta la acción de la URL, sin terminarla) y prefiere resolver primero la PWA. No retomar el atajo hasta que él lo pida.
+3. Después de la PWA (o en paralelo si Sebas lo pide): aplicar de verdad el rediseño visual **"Tinta y Trazo"** al código — ver abajo, sigue siendo un pendiente real, no cosmético.
 
-**Después de esas rondas, una tanda larga de ajustes en vivo probando en el iPhone real de Sebas** (todo ya en `master`, cada uno su propio commit descriptivo — no hace falta releerlos para continuar, solo saber que existen):
-- Se reemplazó el doblez de página 3D (rotateX + perspective) por una animación 2D de deslizar/rotar/desvanecer — el 3D nunca se vio bien ni fluido pese a varios intentos; el reemplazo sí funcionó.
-- El botón de guardar, el tamaño de la tarjeta, y el orden en que aparecen los campos se ajustaron varias veces por problemas reales de espacio en pantalla (teclado tapando el botón, campos duplicados con su vista previa, etc.).
-- Los chips de categoría/pago se ocultan por completo al elegir uno (no solo los no elegidos), con una `×` en la vista previa para deshacer.
-- El monto ahora se escribe con punto de miles en vivo, y también se oculta al confirmarlo (mismo patrón que los chips).
-- Se agregaron flechas visibles `‹ ›` para cambiar de mes (ya existía el swipe, pero no había forma visible de descubrirlo), más un swipe horizontal dedicado sobre el encabezado del mes (el gesto compartido con el doblez de página no respondía bien en touch real).
-- Se puede navegar 2 meses antes/después del actual aunque estén vacíos (antes solo se podía ir a meses con datos).
+## Recap completo de la sesión larga de hoy (2026-08-04)
 
-## Dirección visual definitiva: "Tinta y Trazo" — **decidida pero NO aplicada todavía**
+**Punto de partida:** ya estaba fusionado el rediseño visual vintage (Ronda 2).
 
-Sebas no quedó conforme con el look vintage-crema-cursiva original y pidió explorar alternativas. Se hizo un brainstorming visual completo en un artifact (papel frío, tinta índigo, serif elegante solo en los montos, con variedad sutil entre recibos — rotación, doblez de esquina, grano de papel — para que el cuaderno no se sienta repetido). **Sebas ya aprobó esta dirección como la definitiva.**
+**Tanda de ajustes probando en el iPhone real**, uno por uno según fue apareciendo cada problema:
+- Se reemplazó el doblez de página 3D (rotateX + perspective) por una animación 2D de deslizar/rotar/desvanecer — el 3D nunca se vio bien ni fluido pese a varios intentos.
+- Se unificó el alto de todas las páginas (portada, hoja en blanco, recibos guardados) para que no cambien de tamaño de golpe al pasar de una a otra.
+- Los chips de categoría/pago se ocultan por completo al elegir uno, con una `×` en la vista previa para deshacer. El monto también se oculta al confirmarlo, con el mismo patrón.
+- Se agregaron flechas visibles `‹ ›` para cambiar de mes, más un swipe horizontal dedicado sobre el encabezado (el gesto compartido con el doblez de página no respondía bien en touch real).
+- Se puede navegar 2 meses antes/después del actual aunque estén vacíos.
 
-**Pendiente real, no un "nice to have":** ese diseño solo existe en el artifact de exploración — el código de `index.html` todavía tiene la paleta vintage vieja (`--emerald`, `--gold`, `--coral`, cursiva `Snell Roundhand`). Falta traducir "Tinta y Trazo" a la app de verdad: nueva paleta de variables CSS, tipografía serif en los montos, y el detalle de variedad entre recibos guardados (rotación/doblez/grano ligeramente distintos entre sí). Esto no tiene spec ni plan escrito todavía — arrancar por ahí (brainstorming → spec → plan) antes de tocar código, siguiendo el mismo proceso de siempre.
+**Ronda 3, con proceso completo** (brainstorming de ideas → spec → plan → subagentes con implementador+revisor por tarea → revisión final): comparación con el mes anterior (solo en meses ya terminados), filtro del cuaderno por categoría, y el atajo de Siri (prellena la hoja, nunca guarda sola). Spec: `docs/superpowers/specs/2026-08-04-comparacion-filtro-atajo-siri-design.md`. Plan: `docs/superpowers/plans/2026-08-04-comparacion-filtro-atajo-siri.md`.
 
-## Ronda 3 — recién cerrada: comparación, filtro y atajo de Siri
+**Extras después de la Ronda 3:**
+- Desglose y filtro también por forma de pago, con línea separadora y colores propios (BreB morado, Tarjeta de Crédito naranja, Efectivo verde azulado) — los chips del formulario también los usan.
+- RappiCard renombrada a "Tarjeta de Crédito" en todo el código.
+- Se quitó "Borrar todos los registros" (poca utilidad).
+- El botón de guardar solo aparece cuando el formulario está completo (antes se mostraba siempre, deshabilitado).
+- Guardar responde al primer toque aunque el teclado siga abierto (bug clásico de iOS: el primer toque solo cerraba el teclado).
+- **Bug real y sutil, ya corregido:** al quitar un filtro, la caja de vista previa quedaba visible y vacía. Causa: `render()` dibujaba dos copias idénticas de la hoja en blanco a la vez (una visible en `#faceFront`, otra de repuesto en `#pageUnder` para las transiciones) con los mismos ids duplicados — el código terminaba ocultando la copia invisible en vez de la visible. Nunca se había notado porque antes del filtro, ese camino directo siempre caía en la portada (que no tiene esos ids), nunca en la hoja en blanco.
 
-De un brainstorming de mejoras (con superpowers), Sebas eligió tres para construir ya:
-1. **Comparación con el mes anterior**: "↑20% vs julio" junto al total, solo en meses ya terminados (nunca en el mes actual).
-2. **Filtro del cuaderno por categoría**: tocar una fila del resumen salta a esos recibos, con una pastilla "Shaun ✕" para quitarlo; mientras está activo no aparece la hoja de agregar gasto.
-3. **Atajo de Siri**: la app lee `?monto=&categoria=&pago=&nota=` de la URL y prellena la hoja en blanco (sin guardar sola — siempre hay que tocar "Guardar gasto").
+**Lecciones para no repetir:**
+- La caché de Safari fue la causa de varios "esto no funcionó" que en realidad sí estaban arreglados — de ahí `serve-sin-cache.py` y la costumbre de pestaña privada / `?v=`.
+- Agrandar la tarjeta no siempre resuelve un botón cortado — a veces el problema real es que no hay forma de llegar ahí con el dedo (el gesto de doblar página capturaba el arrastre), no que falte espacio.
+- Los ids duplicados en el HTML son peligrosos: `document.getElementById` siempre agarra el primero que encuentra, así que dos copias de una página con el mismo id pueden hacer que el código toque la copia equivocada sin que se note hasta que cambia el flujo que las usa.
 
-Spec: `docs/superpowers/specs/2026-08-04-comparacion-filtro-atajo-siri-design.md`. Plan (3 tareas): `docs/superpowers/plans/2026-08-04-comparacion-filtro-atajo-siri.md`. Las 3 tareas se ejecutaron con subagentes (implementador + revisor por tarea), todas aprobadas, más una revisión final del conjunto: **"Ready to merge: Sí"**, 8 hallazgos Menores (ninguno bloqueante). Uno ya se corrigió (la nota del atajo de Siri no respetaba el límite de 140 caracteres al venir por URL). Quedan dos decisiones de UX, sin resolver a propósito porque son gusto de Sebas, no bugs:
-- Tocar una fila del resumen mid-registro (con monto/nota ya escritos sin guardar) descarta ese progreso sin avisar ni poder deshacerlo.
-- Quitar el filtro de categoría aterriza en la hoja de agregar gasto, no en la portada del mes.
+## Dirección visual definitiva: "Tinta y Trazo" — sigue sin aplicarse
 
-**Explícitamente fuera de alcance de esta ronda, a propósito:** convertir la app en una PWA real (manifest.json + service worker) para dejar de depender del servidor local y de que Sebas tenga que actualizar la URL del Atajo de Siri si cambia de wifi. Es la siguiente ronda natural, después de que el rediseño visual quede aplicado.
+Sebas ya aprobó esta dirección (papel frío, tinta índigo, serif elegante solo en los montos, variedad sutil entre recibos guardados) en un artifact de exploración. **El código de `index.html` todavía tiene la paleta vintage vieja** (`--emerald`, `--gold`, `--coral`, cursiva `Snell Roundhand`) — falta traducir el diseño aprobado a la app de verdad. No tiene spec ni plan escrito todavía; arrancar por ahí (brainstorming → spec → plan) cuando llegue el momento.
 
-## Lo único que falta — pendiente de siempre
+## Lo único que falta de siempre
 
-**Verificación visual en el iPhone real.** Ningún agente de esta ronda tuvo navegador conectado — la comparación, el filtro (interacción táctil) y sobre todo el atajo de Siri (probado por inspección de código, nunca en pantalla) necesitan que Sebas los pruebe de verdad antes de darlos por cerrados del todo. Con el servidor `serve-sin-cache.py` corriendo, probar `http://<ip-local>:8010/?monto=20000&categoria=Salidas&pago=BreB&nota=prueba` para el atajo.
+**Verificación visual en el iPhone real** de todo lo construido hoy — Sebas ya fue probando y reportando bugs en vivo durante la sesión, así que la mayoría de lo importante ya pasó por sus manos. Lo único sin probar en pantalla real todavía es el atajo de Siri terminado de punta a punta (se quedó a medias armando la acción de la URL).
 
 ## Una sola instrucción para retomar
 
-Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero. Si menciona haber probado en el iPhone, recoge ese feedback y decide con él los siguientes pasos. Si no, pregúntale si quiere: (a) probar lo nuevo en el iPhone, (b) arrancar el rediseño visual "Tinta y Trazo" de verdad, o (c) avanzar con la PWA/hosting.
+Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero. Empieza por la PWA salvo que él diga lo contrario — el atajo de Siri se retoma solo si él lo pide explícitamente.
