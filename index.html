@@ -626,7 +626,16 @@
   });
 
   document.getElementById('notebook').addEventListener('input', (e) => {
-    if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); }
+    if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); mantenerGuardarVisible(); }
+  });
+
+  function mantenerGuardarVisible() {
+    const btn = document.getElementById('guardarBtn');
+    if (btn) btn.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }
+
+  document.getElementById('notebook').addEventListener('focusin', (e) => {
+    if (e.target.id === 'monto') setTimeout(mantenerGuardarVisible, 350);
   });
 
   function cambiarMes(delta) {
