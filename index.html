@@ -654,7 +654,7 @@
       montoInput.value = Number(soloDigitos).toLocaleString('es-CO');
       ocultarMontoConfirmado(true);
     }
-    if (notaInput && notaParam) notaInput.value = notaParam;
+    if (notaInput && notaParam) notaInput.value = notaParam.slice(0, 140);
 
     marcarSeleccionActiva();
     actualizarGuardar();
