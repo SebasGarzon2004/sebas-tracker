@@ -79,6 +79,18 @@ test('obtenerPaginas antepone la hoja en blanco solo en el mes actual', () => {
   assert.deepStrictEqual(obtenerPaginas([], true), ['blanco']);
 });
 
+test('obtenerPaginas filtra por categoría y nunca incluye la hoja en blanco cuando hay filtro', () => {
+  const gastos = [
+    { id: 1, monto: 100, categoria: 'Hogar', pago: 'Efectivo', fecha: '2026-08-01T10:00:00.000Z' },
+    { id: 2, monto: 200, categoria: 'Shaun', pago: 'BreB', fecha: '2026-08-02T10:00:00.000Z' },
+    { id: 3, monto: 300, categoria: 'Shaun', pago: 'Efectivo', fecha: '2026-08-03T10:00:00.000Z' },
+  ];
+  assert.deepStrictEqual(obtenerPaginas(gastos, true, 'Shaun'), [gastos[1], gastos[2]]);
+  assert.deepStrictEqual(obtenerPaginas(gastos, false, 'Shaun'), [gastos[1], gastos[2]]);
+  assert.deepStrictEqual(obtenerPaginas(gastos, true, 'Swift'), [], 'sin gastos de esa categoría, la lista queda vacía');
+  assert.deepStrictEqual(obtenerPaginas(gastos, true, null), ['blanco', gastos[0], gastos[1], gastos[2]], 'sin filtro se comporta igual que antes');
+});
+
 test('clamp limita un valor entre un mínimo y un máximo', () => {
   assert.strictEqual(clamp(5, 0, 3), 3);
   assert.strictEqual(clamp(-2, 0, 3), 0);

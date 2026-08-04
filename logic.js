@@ -56,8 +56,12 @@ function cambioPorcentual(totalActual, totalAnterior) {
   return Math.round(((totalActual - totalAnterior) / totalAnterior) * 100);
 }
 
-function obtenerPaginas(gastosDelMes, esMesActual) {
-  return esMesActual ? ['blanco', ...gastosDelMes] : [...gastosDelMes];
+function obtenerPaginas(gastosDelMes, esMesActual, categoriaFiltro) {
+  const gastosFiltrados = categoriaFiltro
+    ? gastosDelMes.filter(g => g.categoria === categoriaFiltro)
+    : gastosDelMes;
+  if (categoriaFiltro) return [...gastosFiltrados];
+  return esMesActual ? ['blanco', ...gastosFiltrados] : [...gastosFiltrados];
 }
 
 function clamp(valor, minimo, maximo) {
