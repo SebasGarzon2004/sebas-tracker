@@ -37,6 +37,13 @@
   }
 
   #mesNav { display: flex; align-items: center; justify-content: center; gap: 10px; }
+  #filtroActivo { display: flex; justify-content: center; min-height: 0; }
+  #filtroActivo:not(:empty) { margin: 6px 0 2px; }
+  .pastilla-filtro {
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 4px 12px; font-size: 0.78rem; font-weight: 600;
+  }
+  .pastilla-filtro:active { transform: scale(0.96); }
   #mesNav button {
     background: none; border: none; color: var(--gold); font-size: 1.9rem; line-height: 1;
     padding: 4px 8px; font-family: Georgia, serif;
@@ -52,7 +59,8 @@
   #resumen { padding: 14px 16px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--card); box-shadow: var(--shadow); }
   .resumen-total-mes { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
   .resumen-filas { display: flex; flex-direction: column; gap: 6px; }
-  .resumen-fila { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+  .resumen-fila { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor: pointer; }
+  .resumen-fila:active { opacity: 0.65; }
   .resumen-fila .barra { width: 5px; height: 16px; border-radius: 3px; flex-shrink: 0; }
   .resumen-fila .nombre { flex: 1; color: var(--ink); }
   .resumen-fila .monto { color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -210,6 +218,7 @@
     <h1 id="mesHeader"></h1>
     <button id="btnMesSiguienteVisible" aria-label="Mes siguiente">›</button>
   </div>
+  <div id="filtroActivo"></div>
   <div id="notebook">
     <div class="pagina-cara pila pila-2" aria-hidden="true"></div>
     <div class="pagina-cara pila pila-1" aria-hidden="true"></div>
@@ -251,7 +260,7 @@
   }
   function mesActualKey() { return mesKeyDeFecha(new Date().toISOString()); }
 
-  let estado = { mesIndex: null, posicion: -1 };
+  let estado = { mesIndex: null, posicion: -1, categoriaFiltro: null, _saltarAlFiltrar: false };
 
   // Todas las páginas (portada, hoja en blanco, recibos guardados) comparten
   // un único alto de cuaderno en vez de medirse cada una por su cuenta — si no,
@@ -291,8 +300,13 @@
     const esMesActual = mesKey === mesActual;
     const gastosDelMes = gastosPorMes[mesKey] || [];
     const resumen = calcularResumenMes(gastosDelMes);
-    const paginas = obtenerPaginas(gastosDelMes, esMesActual);
-    estado.posicion = clamp(estado.posicion, -1, paginas.length - 1);
+    const paginas = obtenerPaginas(gastosDelMes, esMesActual, estado.categoriaFiltro);
+    if (estado._saltarAlFiltrar) {
+      estado.posicion = paginas.length > 0 ? 0 : -1;
+      estado._saltarAlFiltrar = false;
+    } else {
+      estado.posicion = clamp(estado.posicion, -1, paginas.length - 1);
+    }
 
     const mesAnteriorKey = sumarMeses(mesKey, -1);
     const totalMesAnterior = calcularResumenMes(gastosPorMes[mesAnteriorKey] || []).total;
@@ -303,11 +317,12 @@
       `<span class="cambio-mes baja">↓${Math.abs(cambio)}% vs ${nombreMesCorto(mesAnteriorKey)}</span>`;
 
     document.getElementById('mesHeader').textContent = nombreMes(mesKey);
+    actualizarFiltroActivo();
     document.getElementById('resumen').innerHTML = `
       <div class="resumen-total-mes rounded">Total del mes: ${moneda(resumen.total)}${badgeCambio}</div>
       <div class="resumen-filas">
         ${CATEGORIAS.map(cat => `
-          <div class="resumen-fila">
+          <div class="resumen-fila" data-categoria="${cat}">
             <span class="barra ${BADGE_CATEGORIA[cat].replace('badge-', 'barra-')}"></span>
             <span class="nombre">${cat}</span>
             <span class="monto">${moneda(resumen.porCategoria[cat])}</span>
@@ -422,6 +437,13 @@
         <button class="anular" data-id="${contenido.id}">Anular este gasto</button>
       </div>
     `;
+  }
+
+  function actualizarFiltroActivo() {
+    const el = document.getElementById('filtroActivo');
+    if (!estado.categoriaFiltro) { el.innerHTML = ''; return; }
+    const clase = BADGE_CATEGORIA[estado.categoriaFiltro].replace('badge-', 'chip-');
+    el.innerHTML = `<button type="button" id="quitarFiltro" class="pastilla-filtro ${clase}">${escapeHtml(estado.categoriaFiltro)} ✕</button>`;
   }
 
   function marcarSeleccionActiva() {
@@ -764,6 +786,24 @@
     if (e.target.id === 'monto' || e.target.id === 'nota') { actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); }
   });
 
+  document.getElementById('resumen').addEventListener('click', (e) => {
+    const fila = e.target.closest('.resumen-fila');
+    if (!fila) return;
+    const cat = fila.dataset.categoria;
+    estado.categoriaFiltro = (estado.categoriaFiltro === cat) ? null : cat;
+    estado._saltarAlFiltrar = true;
+    window._paginaInicial = false;
+    render();
+  });
+
+  document.getElementById('filtroActivo').addEventListener('click', (e) => {
+    if (!e.target.closest('#quitarFiltro')) return;
+    estado.categoriaFiltro = null;
+    estado._saltarAlFiltrar = true;
+    window._paginaInicial = false;
+    render();
+  });
+
   // La caja de vista previa (#reciboPreviewBox) aparece/crece cuando el usuario
   // elige categoría, pago o escribe el monto, pero el alto del cuaderno solo se
   // calculaba una vez al entrar a la hoja en blanco (con la caja aún vacía). Sin
@@ -821,6 +861,7 @@
     setTimeout(() => {
       estado.mesIndex = nuevoIndex;
       estado.posicion = -1;
+      if (estado.categoriaFiltro) estado._saltarAlFiltrar = true;
       window._paginaInicial = false;
       render();
 
