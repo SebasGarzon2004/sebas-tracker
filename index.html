@@ -232,6 +232,19 @@
   function cargarGastos() { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
   function guardarGastos(gastos) { localStorage.setItem(KEY, JSON.stringify(gastos)); }
   function moneda(n) { return '$' + Math.round(n).toLocaleString('es-CO'); }
+
+  // #monto es texto (no <input type="number">) para poder mostrar el punto
+  // de miles mientras se escribe. numeroDesdeMonto() le quita ese punto (y
+  // cualquier otro carácter que no sea dígito) para recuperar el número real.
+  function numeroDesdeMonto(valor) {
+    const soloDigitos = String(valor).replace(/\D/g, '');
+    return soloDigitos ? parseFloat(soloDigitos) : NaN;
+  }
+
+  function formatearMontoInput(input) {
+    const soloDigitos = input.value.replace(/\D/g, '');
+    input.value = soloDigitos ? Number(soloDigitos).toLocaleString('es-CO') : '';
+  }
   function mesActualKey() { return mesKeyDeFecha(new Date().toISOString()); }
 
   let estado = { mesIndex: null, posicion: -1 };
@@ -362,7 +375,7 @@
     if (contenido === 'blanco') {
       return `
         <div class="masthead rounded">Recibo</div>
-        <input type="number" id="monto" inputmode="decimal" placeholder="Monto">
+        <input type="text" id="monto" inputmode="numeric" placeholder="Monto" autocomplete="off">
         <div class="recibo-preview" id="reciboPreviewBox"><pre id="reciboPreview" class="content"></pre></div>
         <div class="grupo-titulo">Categoría</div>
         <div class="chips" id="chipsCategoria">
@@ -416,7 +429,7 @@
     const btn = document.getElementById('guardarBtn');
     const montoInput = document.getElementById('monto');
     if (!btn || !montoInput) return;
-    const monto = parseFloat(montoInput.value);
+    const monto = numeroDesdeMonto(montoInput.value);
     btn.disabled = !(monto > 0 && seleccion.categoria && seleccion.pago);
   }
 
@@ -560,7 +573,7 @@
   }
 
   function guardarGasto() {
-    const monto = parseFloat(document.getElementById('monto').value);
+    const monto = numeroDesdeMonto(document.getElementById('monto').value);
     if (!(monto > 0) || !seleccion.categoria || !seleccion.pago) return;
     const notaInput = document.getElementById('nota');
     const nota = notaInput ? notaInput.value.trim() : '';
@@ -595,7 +608,7 @@
   function reciboTieneContenido() {
     const montoInput = document.getElementById('monto');
     const notaInput = document.getElementById('nota');
-    const monto = montoInput ? parseFloat(montoInput.value) : NaN;
+    const monto = montoInput ? numeroDesdeMonto(montoInput.value) : NaN;
     const nota = notaInput ? notaInput.value.trim() : '';
     return Boolean(seleccion.categoria || seleccion.pago || monto > 0 || nota);
   }
@@ -639,7 +652,7 @@
 
     const montoInput = document.getElementById('monto');
     const notaInput = document.getElementById('nota');
-    const monto = montoInput ? parseFloat(montoInput.value) : NaN;
+    const monto = montoInput ? numeroDesdeMonto(montoInput.value) : NaN;
     const nota = notaInput ? notaInput.value.trim() : '';
     const valores = {
       categoria: seleccion.categoria ? `Categoría: ${seleccion.categoria}` : null,
@@ -710,6 +723,7 @@
   });
 
   document.getElementById('notebook').addEventListener('input', (e) => {
+    if (e.target.id === 'monto') formatearMontoInput(e.target);
     if (e.target.id === 'monto' || e.target.id === 'nota') { actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); }
   });
 
