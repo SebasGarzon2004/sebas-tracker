@@ -81,9 +81,16 @@
   .chip-cat.selected.chip-hogar { background: var(--tag-hogar); color: #fff; border-color: transparent; }
 
   #monto { font-size: 1.4rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
+  #nota { font-size: 0.95rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-family: inherit; }
   .recibo-preview { margin: 14px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); min-height: 60px; }
-  .recibo-preview pre { margin: 0; font-family: 'Courier New', monospace; font-size: 0.9rem; color: var(--ink); }
-  .recibo-preview pre div { min-height: 1.4em; }
+  .recibo-preview pre { margin: 0; font-family: 'Courier New', monospace; font-size: 1.05rem; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
+  .linea-recibo { min-height: 1.4em; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .deshacer-linea {
+    flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--card); color: var(--muted);
+    font-size: 0.85rem; line-height: 1; padding: 0;
+  }
+  .deshacer-linea:active { background: var(--line); }
 
   #guardarBtn {
     width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px;
@@ -100,6 +107,8 @@
   .content { font-family: 'Courier New', monospace; }
   .monto-grande { font-size: 2rem; font-weight: 700; margin: 4px 0 10px; }
   .detalle-secundario { color: var(--muted); font-size: 0.85rem; margin: 2px 0; }
+  .nota-gasto { font-style: italic; }
+  .fecha-gasto { font-size: 0.78rem; margin-top: 6px; }
 
   .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 28px; height: 20px; padding: 0 4px; border-radius: 5px; color: #fff; font-weight: bold; font-size: 0.7rem; letter-spacing: 0.02em; margin-right: 6px; }
   .badge-shaun { background: var(--tag-shaun); }
@@ -305,6 +314,15 @@
   const PAGOS = ['BreB', 'RappiCard', 'Efectivo'];
   let seleccion = { categoria: null, pago: null };
 
+  function escapeHtml(texto) {
+    return String(texto).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  function formatearFechaHora(fechaISO) {
+    const d = new Date(fechaISO);
+    return d.toLocaleString('es-CO', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+  }
+
   const INICIALES_CATEGORIA = {
     'Shaun': 'SH',
     'Swift': 'SW',
@@ -337,6 +355,8 @@
         <div class="chips" id="chipsPago">
           ${PAGOS.map(p => `<button type="button" class="chip" data-pago="${p}">${p}</button>`).join('')}
         </div>
+        <div class="grupo-titulo">Nota (opcional)</div>
+        <input type="text" id="nota" placeholder="Descripción del gasto" maxlength="140">
         <button id="guardarBtn" disabled>Guardar gasto</button>
       `;
     }
@@ -349,14 +369,24 @@
         <p class="monto-grande rounded">${moneda(contenido.monto)}</p>
         <p class="content detalle-secundario"><span class="badge ${badgeClase}">${iniciales}</span>${contenido.categoria}</p>
         <p class="content detalle-secundario">${contenido.pago}</p>
+        ${contenido.nota ? `<p class="content detalle-secundario nota-gasto">${escapeHtml(contenido.nota)}</p>` : ''}
+        <p class="content detalle-secundario fecha-gasto">${formatearFechaHora(contenido.fecha)}</p>
         <button class="anular" data-id="${contenido.id}">Anular este gasto</button>
       </div>
     `;
   }
 
   function marcarSeleccionActiva() {
-    document.querySelectorAll('#chipsCategoria .chip').forEach(b => b.classList.toggle('selected', b.dataset.cat === seleccion.categoria));
-    document.querySelectorAll('#chipsPago .chip').forEach(b => b.classList.toggle('selected', b.dataset.pago === seleccion.pago));
+    document.querySelectorAll('#chipsCategoria .chip').forEach(b => {
+      const esSel = b.dataset.cat === seleccion.categoria;
+      b.classList.toggle('selected', esSel);
+      b.style.display = (seleccion.categoria && !esSel) ? 'none' : '';
+    });
+    document.querySelectorAll('#chipsPago .chip').forEach(b => {
+      const esSel = b.dataset.pago === seleccion.pago;
+      b.classList.toggle('selected', esSel);
+      b.style.display = (seleccion.pago && !esSel) ? 'none' : '';
+    });
   }
 
   function actualizarGuardar() {
@@ -521,8 +551,10 @@
   function guardarGasto() {
     const monto = parseFloat(document.getElementById('monto').value);
     if (!(monto > 0) || !seleccion.categoria || !seleccion.pago) return;
+    const notaInput = document.getElementById('nota');
+    const nota = notaInput ? notaInput.value.trim() : '';
     const gastos = cargarGastos();
-    gastos.push({ id: Date.now(), monto, categoria: seleccion.categoria, pago: seleccion.pago, fecha: new Date().toISOString() });
+    gastos.push({ id: Date.now(), monto, categoria: seleccion.categoria, pago: seleccion.pago, nota, fecha: new Date().toISOString() });
     guardarGastos(gastos);
     seleccion = { categoria: null, pago: null };
 
@@ -551,8 +583,10 @@
 
   function reciboTieneContenido() {
     const montoInput = document.getElementById('monto');
+    const notaInput = document.getElementById('nota');
     const monto = montoInput ? parseFloat(montoInput.value) : NaN;
-    return Boolean(seleccion.categoria || seleccion.pago || monto > 0);
+    const nota = notaInput ? notaInput.value.trim() : '';
+    return Boolean(seleccion.categoria || seleccion.pago || monto > 0 || nota);
   }
 
   function actualizarRecibo() {
@@ -561,44 +595,59 @@
     if (!el.dataset.inicializado) {
       lineasEscritas = {};
       el.innerHTML = '';
-      ['categoria', 'pago', 'monto'].forEach(key => {
+      ['categoria', 'pago', 'monto', 'nota'].forEach(key => {
         const linea = document.createElement('div');
+        linea.className = 'linea-recibo';
         linea.dataset.linea = key;
         linea.style.display = 'none';
+        const texto = document.createElement('span');
+        texto.className = 'texto-linea';
+        linea.appendChild(texto);
+        const btnX = document.createElement('button');
+        btnX.type = 'button';
+        btnX.className = 'deshacer-linea';
+        btnX.dataset.deshacer = key;
+        btnX.setAttribute('aria-label', 'Quitar');
+        btnX.textContent = '×';
+        linea.appendChild(btnX);
         el.appendChild(linea);
       });
       el.dataset.inicializado = '1';
     }
 
     const montoInput = document.getElementById('monto');
+    const notaInput = document.getElementById('nota');
     const monto = montoInput ? parseFloat(montoInput.value) : NaN;
+    const nota = notaInput ? notaInput.value.trim() : '';
     const valores = {
       categoria: seleccion.categoria ? `Categoría: ${seleccion.categoria}` : null,
       pago: seleccion.pago ? `Pago: ${seleccion.pago}` : null,
       monto: monto > 0 ? `Monto: ${moneda(monto)}` : null,
+      nota: nota ? `Nota: ${nota}` : null,
     };
 
     Object.keys(valores).forEach(key => {
       const linea = el.querySelector(`[data-linea="${key}"]`);
+      const spanTexto = linea.querySelector('.texto-linea');
       const texto = valores[key];
       if (!texto) {
-        clearInterval(linea._intervalo);
+        clearInterval(spanTexto._intervalo);
         linea.style.display = 'none';
-        linea.textContent = '';
+        spanTexto.textContent = '';
         delete lineasEscritas[key];
         return;
       }
       linea.style.display = '';
       if (lineasEscritas[key] !== texto) {
-        if (!lineasEscritas[key]) escribirTexto(linea, texto);
+        if (!lineasEscritas[key]) escribirTexto(spanTexto, texto);
         else {
           // El reemplazo instantáneo también debe cortar el intervalo de la
           // animación de máquina de escribir si todavía estaba corriendo,
           // o sus caracteres pendientes se siguen agregando por encima del
           // texto nuevo (se vio como texto pegado/duplicado al cambiar de
           // categoría muy rápido).
-          clearInterval(linea._intervalo);
-          linea.textContent = texto;
+          clearInterval(spanTexto._intervalo);
+          spanTexto.textContent = texto;
         }
         lineasEscritas[key] = texto;
       }
@@ -609,6 +658,19 @@
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
+    const btnDeshacer = e.target.closest('.deshacer-linea');
+    if (btnDeshacer) {
+      const key = btnDeshacer.dataset.deshacer;
+      if (key === 'categoria') seleccion.categoria = null;
+      else if (key === 'pago') seleccion.pago = null;
+      else if (key === 'monto') { const mi = document.getElementById('monto'); if (mi) mi.value = ''; }
+      else if (key === 'nota') { const ni = document.getElementById('nota'); if (ni) ni.value = ''; }
+      marcarSeleccionActiva();
+      actualizarGuardar();
+      actualizarRecibo();
+      recalcularAlturaYMantenerVisible();
+      return;
+    }
     const catBtn = e.target.closest('#chipsCategoria .chip');
     if (catBtn) { seleccion.categoria = catBtn.dataset.cat; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); return; }
     const pagoBtn = e.target.closest('#chipsPago .chip');
@@ -626,7 +688,7 @@
   });
 
   document.getElementById('notebook').addEventListener('input', (e) => {
-    if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); }
+    if (e.target.id === 'monto' || e.target.id === 'nota') { actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); }
   });
 
   // La caja de vista previa (#reciboPreviewBox) aparece/crece cuando el usuario
