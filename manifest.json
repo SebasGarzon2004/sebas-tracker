@@ -1,6 +1,6 @@
 {
-  "name": "Seba's Tracker",
-  "short_name": "Seba's Tracker",
+  "name": "Sebas' Tracker",
+  "short_name": "Sebas' Tracker",
   "description": "Libreta de gastos personal — registro rápido de recibos con categorías, formas de pago y resumen mensual.",
   "start_url": "./index.html",
   "scope": "./",

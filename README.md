@@ -1,4 +1,4 @@
-# Seba's Tracker
+# Sebas' Tracker
 
 Una libreta de gastos personal, pensada como un cuaderno de recibos: cada gasto es su propia hoja, se pasa página deslizando el dedo, y el mes se resume aparte con un desglose por categoría y por forma de pago.
 
