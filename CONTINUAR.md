@@ -65,6 +65,8 @@ Sebas ya aprobó esta dirección (papel frío, tinta índigo, serif elegante sol
 
 **Verificación visual en el iPhone real** de todo lo construido hoy — Sebas ya fue probando y reportando bugs en vivo durante la sesión, así que la mayoría de lo importante ya pasó por sus manos. Lo único sin probar en pantalla real todavía es el atajo de Siri terminado de punta a punta (se quedó a medias armando la acción de la URL).
 
+Se sumaron otros 20px a los tres valores de altura del cuaderno (colchón 140->160px, piso mínimo 190->210px, fallback CSS 250->270px), a pedido de Sebas, sin haber probado aún si el campo de Nota sigue cortado en el iPhone real.
+
 ## Una sola instrucción para retomar
 
 Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero. Empieza por la PWA salvo que él diga lo contrario — el atajo de Siri se retoma solo si él lo pide explícitamente.
