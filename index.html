@@ -425,6 +425,15 @@
     if (titulo && titulo.classList.contains('grupo-titulo')) titulo.style.display = ocultar ? 'none' : '';
   }
 
+  // Mismo criterio que ocultarGrupoChips, pero para el campo de monto: se
+  // oculta el input al confirmarlo (perder el foco con un valor válido) para
+  // que no quede repetido con la línea "Monto: $X" de la vista previa
+  // ocupando espacio a la vez, y vuelve a aparecer si se deshace con la X.
+  function ocultarMontoConfirmado(ocultar) {
+    const input = document.getElementById('monto');
+    if (input) input.style.display = ocultar ? 'none' : '';
+  }
+
   function actualizarGuardar() {
     const btn = document.getElementById('guardarBtn');
     const montoInput = document.getElementById('monto');
@@ -698,7 +707,7 @@
       const key = btnDeshacer.dataset.deshacer;
       if (key === 'categoria') seleccion.categoria = null;
       else if (key === 'pago') seleccion.pago = null;
-      else if (key === 'monto') { const mi = document.getElementById('monto'); if (mi) mi.value = ''; }
+      else if (key === 'monto') { const mi = document.getElementById('monto'); if (mi) { mi.value = ''; ocultarMontoConfirmado(false); mi.focus(); } }
       else if (key === 'nota') { const ni = document.getElementById('nota'); if (ni) ni.value = ''; }
       marcarSeleccionActiva();
       actualizarGuardar();
@@ -747,6 +756,18 @@
 
   document.getElementById('notebook').addEventListener('focusin', (e) => {
     if (e.target.id === 'monto') setTimeout(mantenerGuardarVisible, 350);
+  });
+
+  // Al confirmar el monto (perder el foco con un valor válido) se oculta el
+  // input — ya queda la línea "Monto: $X" en la vista previa, no hace falta
+  // tenerlos los dos a la vez ocupando espacio mientras se llenan las demás
+  // opciones.
+  document.getElementById('notebook').addEventListener('focusout', (e) => {
+    if (e.target.id !== 'monto') return;
+    if (numeroDesdeMonto(e.target.value) > 0) {
+      ocultarMontoConfirmado(true);
+      recalcularAlturaYMantenerVisible();
+    }
   });
 
   function cambiarMes(delta) {
