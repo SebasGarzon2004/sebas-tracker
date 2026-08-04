@@ -24,7 +24,7 @@
     --tag-gp: #46626F;
     --tag-hogar: #8A6A4E;
     --pago-breb: #6B4FA0;
-    --pago-rappicard: #E8590C;
+    --pago-tarjeta: #E8590C;
     --pago-efectivo: #2E7D8C;
     --shadow: 0 8px 24px rgba(20, 30, 24, 0.10);
   }
@@ -77,10 +77,10 @@
   .barra-gp { background: var(--tag-gp); }
   .barra-hogar { background: var(--tag-hogar); }
   .barra-breb { background: var(--pago-breb); }
-  .barra-rappicard { background: var(--pago-rappicard); }
+  .barra-tarjeta { background: var(--pago-tarjeta); }
   .barra-efectivo { background: var(--pago-efectivo); }
   .pastilla-breb { border-color: var(--pago-breb); color: var(--pago-breb); }
-  .pastilla-rappicard { border-color: var(--pago-rappicard); color: var(--pago-rappicard); }
+  .pastilla-tarjeta { border-color: var(--pago-tarjeta); color: var(--pago-tarjeta); }
   .pastilla-efectivo { border-color: var(--pago-efectivo); color: var(--pago-efectivo); }
   .resumen-separador { border-top: 1px solid var(--line); margin: 12px 0 8px; }
 
@@ -395,7 +395,7 @@
   // PAGOS ya viene declarada como global desde logic.js (mismo patrón que
   // CATEGORIAS) — no se vuelve a declarar aquí para no chocar con un
   // "Identifier 'PAGOS' has already been declared".
-  const CLASE_PAGO = { 'BreB': 'breb', 'RappiCard': 'rappicard', 'Efectivo': 'efectivo' };
+  const CLASE_PAGO = { 'BreB': 'breb', 'Tarjeta de Crédito': 'tarjeta', 'Efectivo': 'efectivo' };
   let seleccion = { categoria: null, pago: null };
 
   function escapeHtml(texto) {

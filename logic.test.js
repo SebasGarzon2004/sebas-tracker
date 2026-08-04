@@ -11,7 +11,7 @@ test('agruparPorMes agrupa y ordena del más reciente al más viejo', () => {
   const gastos = [
     { id: 1, monto: 1000, categoria: 'Hogar', pago: 'Efectivo', fecha: '2026-08-01T10:00:00.000Z' },
     { id: 2, monto: 2000, categoria: 'Salidas', pago: 'BreB', fecha: '2026-08-15T10:00:00.000Z' },
-    { id: 3, monto: 3000, categoria: 'Swift', pago: 'RappiCard', fecha: '2026-07-20T10:00:00.000Z' },
+    { id: 3, monto: 3000, categoria: 'Swift', pago: 'Tarjeta de Crédito', fecha: '2026-07-20T10:00:00.000Z' },
   ];
   const grupos = agruparPorMes(gastos);
   assert.deepStrictEqual(Object.keys(grupos).sort(), ['2026-07', '2026-08']);
@@ -72,7 +72,7 @@ test('calcularResumenMes suma el total y el desglose por categoría', () => {
   assert.strictEqual(resumen.porCategoria['Gastos Personales'], 0);
   assert.strictEqual(resumen.porPago.Efectivo, 1500);
   assert.strictEqual(resumen.porPago.BreB, 2000);
-  assert.strictEqual(resumen.porPago.RappiCard, 0, 'las formas de pago sin gastos quedan en 0, no ausentes');
+  assert.strictEqual(resumen.porPago['Tarjeta de Crédito'], 0, 'las formas de pago sin gastos quedan en 0, no ausentes');
 });
 
 test('obtenerPaginas antepone la hoja en blanco solo en el mes actual', () => {
@@ -102,7 +102,7 @@ test('obtenerPaginas también filtra por forma de pago, y combina ambos filtros 
   ];
   assert.deepStrictEqual(obtenerPaginas(gastos, true, null, 'Efectivo'), [gastos[0], gastos[2]]);
   assert.deepStrictEqual(obtenerPaginas(gastos, true, 'Shaun', 'Efectivo'), [gastos[2]], 'con los dos filtros a la vez, solo pasa lo que cumple ambos');
-  assert.deepStrictEqual(obtenerPaginas(gastos, true, null, 'RappiCard'), [], 'sin gastos con esa forma de pago, la lista queda vacía');
+  assert.deepStrictEqual(obtenerPaginas(gastos, true, null, 'Tarjeta de Crédito'), [], 'sin gastos con esa forma de pago, la lista queda vacía');
 });
 
 test('clamp limita un valor entre un mínimo y un máximo', () => {

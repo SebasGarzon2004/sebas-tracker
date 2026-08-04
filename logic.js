@@ -39,7 +39,7 @@ function mesesDisponibles(gastosPorMes, mesActualKey) {
 }
 
 const CATEGORIAS = ['Shaun', 'Swift', 'Salidas', 'Gastos Personales', 'Hogar'];
-const PAGOS = ['BreB', 'RappiCard', 'Efectivo'];
+const PAGOS = ['BreB', 'Tarjeta de Crédito', 'Efectivo'];
 
 function calcularResumenMes(gastosDelMes) {
   const porCategoria = {};

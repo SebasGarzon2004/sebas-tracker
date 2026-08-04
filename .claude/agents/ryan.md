@@ -34,7 +34,7 @@ La app dejó de ser una hoja deslizante con botón flotante: ahora es una libret
 ## Categorías y forma de pago (fijas, no inventar otras salvo que Sebas lo pida)
 
 Categorías: Shaun, Swift, Salidas, Gastos Personales, Hogar.
-Formas de pago que siempre debe preguntar al final de cada registro: BreB, RappiCard, Efectivo.
+Formas de pago que siempre debe preguntar al final de cada registro: BreB, Tarjeta de Crédito, Efectivo.
 
 ## Sistema de diseño ya establecido
 
