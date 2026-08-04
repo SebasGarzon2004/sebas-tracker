@@ -290,7 +290,7 @@
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
-    const alto = Math.max(medidor.offsetHeight + 260, 160);
+    const alto = Math.max(medidor.offsetHeight + 60, 160);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
@@ -366,6 +366,7 @@
       marcarSeleccionActiva();
       actualizarGuardar();
       actualizarRecibo();
+      mantenerGuardarVisibleSiEsBlanco(contenidoActual);
     }
 
     ajustarAltura(html);
@@ -559,6 +560,7 @@
       marcarSeleccionActiva();
       actualizarGuardar();
       actualizarRecibo();
+      mantenerGuardarVisibleSiEsBlanco(datos.contenidoActual);
       leaf.removeEventListener('animationend', terminar);
       animando = false;
     };
@@ -628,6 +630,7 @@
         marcarSeleccionActiva();
         actualizarGuardar();
         actualizarRecibo();
+        mantenerGuardarVisibleSiEsBlanco(datos.contenidoActual);
         animando = false;
         arrastrePagina = null;
       }, 200);
@@ -894,6 +897,15 @@
   function mantenerGuardarVisible() {
     const btn = document.getElementById('guardarBtn');
     if (btn) btn.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  }
+
+  // Al entrar a la hoja en blanco (sin haber tocado nada todavía), "Guardar
+  // gasto" puede quedar fuera de la pantalla desde el primer vistazo. Como el
+  // gesto de doblar página captura cualquier arrastre sobre la tarjeta, el
+  // usuario no tiene forma de arrastrar con el dedo para revelarlo — hay que
+  // hacer scroll por código, no depender de que el usuario pueda hacerlo.
+  function mantenerGuardarVisibleSiEsBlanco(contenidoActual) {
+    if (contenidoActual === 'blanco') setTimeout(mantenerGuardarVisible, 260);
   }
 
   document.getElementById('notebook').addEventListener('focusin', (e) => {
