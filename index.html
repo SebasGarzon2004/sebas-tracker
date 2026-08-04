@@ -626,6 +626,45 @@
     }, 200);
   }
 
+  // Atajo de Siri (Apple Shortcuts): la app puede abrirse con
+  // ?monto=20000&categoria=Salidas&pago=BreB&nota=algo — si vienen esos
+  // parámetros, se prellena la hoja en blanco con esos valores, pero NO se
+  // guarda solo; el usuario sigue teniendo que tocar "Guardar gasto".
+  // categoria/pago deben coincidir exactamente con CATEGORIAS/PAGOS — si no
+  // coinciden, ese campo puntual simplemente no se preselecciona.
+  function precargarDesdeURL() {
+    const params = new URLSearchParams(location.search);
+    const montoParam = params.get('monto');
+    const categoriaParam = params.get('categoria');
+    if (!montoParam && !categoriaParam) return false;
+
+    const pagoParam = params.get('pago');
+    const notaParam = params.get('nota');
+
+    if (categoriaParam && CATEGORIAS.includes(categoriaParam)) seleccion.categoria = categoriaParam;
+    if (pagoParam && PAGOS.includes(pagoParam)) seleccion.pago = pagoParam;
+
+    estado.posicion = 0;
+    render();
+
+    const montoInput = document.getElementById('monto');
+    const notaInput = document.getElementById('nota');
+    const soloDigitos = (montoParam || '').replace(/\D/g, '');
+    if (montoInput && soloDigitos) {
+      montoInput.value = Number(soloDigitos).toLocaleString('es-CO');
+      ocultarMontoConfirmado(true);
+    }
+    if (notaInput && notaParam) notaInput.value = notaParam;
+
+    marcarSeleccionActiva();
+    actualizarGuardar();
+    actualizarRecibo();
+    recalcularAlturaYMantenerVisible();
+
+    history.replaceState(null, '', location.pathname);
+    return true;
+  }
+
   function guardarGasto() {
     const monto = numeroDesdeMonto(document.getElementById('monto').value);
     if (!(monto > 0) || !seleccion.categoria || !seleccion.pago) return;
@@ -1008,7 +1047,7 @@
   })();
 
   ajustarAltura(htmlDePagina('blanco'));
-  render();
+  if (!precargarDesdeURL()) render();
 </script>
 </body>
 </html>
