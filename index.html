@@ -217,7 +217,6 @@
     box-sizing: border-box; border: 1px solid var(--line); padding: 18px; border-radius: 6px;
   }
 
-  #borrarTodo { display: block; margin: 22px auto 0; background: none; border: none; color: var(--muted); font-size: 0.68rem; padding: 4px; opacity: 0.7; }
   .anular { align-self: flex-end; background: none; border: 1px solid var(--coral); color: var(--coral); border-radius: 8px; padding: 4px 8px; font-weight: 700; font-size: 0.7rem; margin-top: 10px; }
   .anular:active { transform: scale(0.97); }
 </style>
@@ -246,7 +245,6 @@
     <button id="btnMesSiguiente">Mes ▶</button>
   </div>
   <div id="resumen"></div>
-  <button id="borrarTodo">Borrar todos los registros</button>
 
 <script src="logic.js"></script>
 <script>
@@ -292,7 +290,7 @@
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
-    const alto = Math.max(medidor.offsetHeight + 50, 160);
+    const alto = Math.max(medidor.offsetHeight + 130, 160);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
@@ -961,14 +959,6 @@
   document.getElementById('btnMesSiguienteVisible').addEventListener('click', () => cambiarMes(1));
   document.getElementById('btnArriba').addEventListener('click', () => moverPagina('arriba'));
   document.getElementById('btnAbajo').addEventListener('click', () => moverPagina('abajo'));
-
-  document.getElementById('borrarTodo').addEventListener('click', () => {
-    if (!confirm('¿Borrar todos los gastos guardados? No se puede deshacer.')) return;
-    guardarGastos([]);
-    estado = { mesIndex: null, posicion: -1 };
-    window._paginaInicial = false;
-    render();
-  });
 
   (function gestos() {
     const UMBRAL_EJE = 10;
