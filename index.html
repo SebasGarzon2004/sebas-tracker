@@ -377,16 +377,22 @@
   }
 
   function marcarSeleccionActiva() {
-    document.querySelectorAll('#chipsCategoria .chip').forEach(b => {
-      const esSel = b.dataset.cat === seleccion.categoria;
-      b.classList.toggle('selected', esSel);
-      b.style.display = (seleccion.categoria && !esSel) ? 'none' : '';
-    });
-    document.querySelectorAll('#chipsPago .chip').forEach(b => {
-      const esSel = b.dataset.pago === seleccion.pago;
-      b.classList.toggle('selected', esSel);
-      b.style.display = (seleccion.pago && !esSel) ? 'none' : '';
-    });
+    document.querySelectorAll('#chipsCategoria .chip').forEach(b => b.classList.toggle('selected', b.dataset.cat === seleccion.categoria));
+    document.querySelectorAll('#chipsPago .chip').forEach(b => b.classList.toggle('selected', b.dataset.pago === seleccion.pago));
+    ocultarGrupoChips('chipsCategoria', Boolean(seleccion.categoria));
+    ocultarGrupoChips('chipsPago', Boolean(seleccion.pago));
+  }
+
+  // Una vez elegida la categoría/pago, se repite en la vista previa del
+  // recibo ("Categoría: Shaun") y en el chip seleccionado a la vez — se
+  // oculta el grupo entero (título + chips) en vez de solo los chips no
+  // elegidos, y solo vuelve a aparecer si se deshace con la X de esa línea.
+  function ocultarGrupoChips(idGrupo, ocultar) {
+    const grupo = document.getElementById(idGrupo);
+    if (!grupo) return;
+    grupo.style.display = ocultar ? 'none' : '';
+    const titulo = grupo.previousElementSibling;
+    if (titulo && titulo.classList.contains('grupo-titulo')) titulo.style.display = ocultar ? 'none' : '';
   }
 
   function actualizarGuardar() {
