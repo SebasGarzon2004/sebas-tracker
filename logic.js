@@ -18,9 +18,23 @@ function agruparPorMes(gastos) {
   return grupos;
 }
 
+function sumarMeses(mesKey, delta) {
+  const [anio, mes] = mesKey.split('-').map(Number);
+  const totalMeses = anio * 12 + (mes - 1) + delta;
+  const nuevoAnio = Math.floor(totalMeses / 12);
+  const nuevoMes = ((totalMeses % 12) + 12) % 12;
+  return `${nuevoAnio}-${String(nuevoMes + 1).padStart(2, '0')}`;
+}
+
+// Además de los meses con gastos guardados, se puede navegar a los 2 meses
+// anteriores y los 2 siguientes al actual, aunque estén vacíos — para poder
+// probar la navegación entre meses sin depender de tener datos ahí.
 function mesesDisponibles(gastosPorMes, mesActualKey) {
   const keys = new Set(Object.keys(gastosPorMes));
   keys.add(mesActualKey);
+  for (let delta = -2; delta <= 2; delta++) {
+    keys.add(sumarMeses(mesActualKey, delta));
+  }
   return Array.from(keys).sort();
 }
 
