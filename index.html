@@ -153,8 +153,8 @@
       radial-gradient(circle at 50% 90%, rgba(0,0,0,0.012) 0, transparent 45%);
     backface-visibility: hidden; border: 1px solid var(--line); box-sizing: border-box; padding: 18px; box-shadow: var(--shadow); overflow: auto;
   }
-  .face-front { background: var(--card); }
-  .face-back { background: var(--card); transform: rotateX(180deg); }
+  .face-front { backface-visibility: hidden; }
+  .face-back { background-color: var(--card); transform: rotateX(180deg); }
   .crease-shadow { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 30%, rgba(0,0,0,.5) 50%, transparent 70%); opacity: 0; pointer-events: none; }
   .crease-light { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,.35) 0%, transparent 25%); opacity: 0; pointer-events: none; }
   .stamp { position: absolute; top: 40%; left: 50%; width: 150px; padding: 6px 0; border: 3px solid var(--coral); color: var(--coral); font-weight: bold; text-align: center; letter-spacing: .1em; transform: translate(-50%,-50%) rotate(-14deg) scale(1); opacity: 0; pointer-events: none; z-index: 10; }
@@ -236,6 +236,12 @@
     const medidor = document.getElementById('medidor');
     medidor.style.width = notebook.clientWidth + 'px';
     medidor.innerHTML = html;
+    // El recibo-preview se oculta condicionalmente vía JS en actualizarRecibo()
+    // (sobre el nodo real, después de esta medición). Replicamos aquí esa misma
+    // condición para que el cuaderno no reserve un hueco vacío mientras la caja
+    // está oculta.
+    const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
+    if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
     const alto = Math.max(medidor.offsetHeight, 160);
     notebook.style.setProperty('--alto-notebook', alto + 'px');
   }
@@ -545,6 +551,12 @@
   // al instante, sin reiniciar la animación completa.
   let lineasEscritas = {};
 
+  function reciboTieneContenido() {
+    const montoInput = document.getElementById('monto');
+    const monto = montoInput ? parseFloat(montoInput.value) : NaN;
+    return Boolean(seleccion.categoria || seleccion.pago || monto > 0);
+  }
+
   function actualizarRecibo() {
     const el = document.getElementById('reciboPreview');
     if (!el) return;
@@ -595,7 +607,7 @@
     });
 
     const contenedor = document.getElementById('reciboPreviewBox');
-    if (contenedor) contenedor.style.display = Object.values(valores).some(Boolean) ? '' : 'none';
+    if (contenedor) contenedor.style.display = reciboTieneContenido() ? '' : 'none';
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
