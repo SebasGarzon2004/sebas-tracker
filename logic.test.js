@@ -45,6 +45,16 @@ test('mesesDisponibles agrega 2 meses atrás y 2 adelante del actual, incluso cr
   );
 });
 
+const { cambioPorcentual } = require('./logic.js');
+
+test('cambioPorcentual calcula el cambio redondeado contra el mes anterior', () => {
+  assert.strictEqual(cambioPorcentual(120000, 100000), 20);
+  assert.strictEqual(cambioPorcentual(80000, 100000), -20);
+  assert.strictEqual(cambioPorcentual(100000, 100000), 0);
+  assert.strictEqual(cambioPorcentual(133000, 100000), 33);
+  assert.strictEqual(cambioPorcentual(50000, 0), null, 'sin gasto el mes anterior no hay base para comparar');
+});
+
 const { calcularResumenMes, obtenerPaginas, clamp } = require('./logic.js');
 
 test('calcularResumenMes suma el total y el desglose por categoría', () => {

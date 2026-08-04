@@ -51,6 +51,11 @@ function calcularResumenMes(gastosDelMes) {
   return { total, porCategoria };
 }
 
+function cambioPorcentual(totalActual, totalAnterior) {
+  if (!totalAnterior) return null;
+  return Math.round(((totalActual - totalAnterior) / totalAnterior) * 100);
+}
+
 function obtenerPaginas(gastosDelMes, esMesActual) {
   return esMesActual ? ['blanco', ...gastosDelMes] : [...gastosDelMes];
 }
@@ -77,7 +82,7 @@ if (typeof module !== 'undefined') {
   module.exports = {
     CATEGORIAS,
     mesKeyDeFecha, agruparPorMes, mesesDisponibles,
-    calcularResumenMes, obtenerPaginas, clamp,
+    calcularResumenMes, cambioPorcentual, obtenerPaginas, clamp,
     anguloDesdeArrastre, debeCompletarDoblez, opacidadPliegue
   };
 }
