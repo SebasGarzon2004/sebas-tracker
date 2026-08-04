@@ -268,7 +268,7 @@
     // condición para que el cuaderno no reserve un hueco vacío mientras la caja
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
-    if (cajaRecibo && !montoConfirmado()) cajaRecibo.style.display = 'none';
+    if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
     const alto = Math.max(medidor.offsetHeight + 50, 160);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
@@ -619,6 +619,19 @@
   // al instante, sin reiniciar la animación completa.
   let lineasEscritas = {};
 
+  // La caja se muestra en cuanto haya algo que mostrar (categoría, pago,
+  // nota, o el monto YA confirmado) — el monto cuenta solo una vez
+  // confirmado para no repetirse con su propio input, que en ese caso
+  // sigue visible; categoría/pago/nota no tienen ese problema porque su
+  // chip/grupo ya se oculta apenas se eligen.
+  function reciboTieneContenido() {
+    const montoInput = document.getElementById('monto');
+    const notaInput = document.getElementById('nota');
+    const monto = montoInput ? numeroDesdeMonto(montoInput.value) : NaN;
+    const nota = notaInput ? notaInput.value.trim() : '';
+    return Boolean(seleccion.categoria || seleccion.pago || (montoConfirmado() && monto > 0) || nota);
+  }
+
   // La copia de la hoja en blanco que se pone en #pageUnder durante la
   // transición (mientras la hoja vieja se desliza) nunca pasa por
   // actualizarRecibo() — ese ocultamiento solo corre cuando la página se
@@ -627,7 +640,7 @@
   // desaparecía de golpe al asentarse la página.
   function ocultarCajaReciboVacia(contenedor) {
     const caja = contenedor && contenedor.querySelector('#reciboPreviewBox');
-    if (caja) caja.style.display = montoConfirmado() ? '' : 'none';
+    if (caja) caja.style.display = reciboTieneContenido() ? '' : 'none';
   }
 
   function actualizarRecibo() {
@@ -663,7 +676,7 @@
     const valores = {
       categoria: seleccion.categoria ? `Categoría: ${seleccion.categoria}` : null,
       pago: seleccion.pago ? `Pago: ${seleccion.pago}` : null,
-      monto: monto > 0 ? `Monto: ${moneda(monto)}` : null,
+      monto: (montoConfirmado() && monto > 0) ? `Monto: ${moneda(monto)}` : null,
       nota: nota ? `Nota: ${nota}` : null,
     };
 
@@ -695,7 +708,7 @@
     });
 
     const contenedor = document.getElementById('reciboPreviewBox');
-    if (contenedor) contenedor.style.display = montoConfirmado() ? '' : 'none';
+    if (contenedor) contenedor.style.display = reciboTieneContenido() ? '' : 'none';
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
