@@ -59,7 +59,7 @@
   #controles button { padding: 12px 14px; font-size: 1rem; }
   #controles button:disabled { opacity: 0.3; }
 
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
   .chip {
     padding: 10px 16px; border: 1.5px solid var(--line); border-radius: 999px;
     background: var(--card); color: var(--ink); font-weight: 600; font-size: 0.92rem;
@@ -68,7 +68,7 @@
   .chip:active { transform: scale(0.96); }
   .chip.selected { border-color: var(--emerald); background: var(--emerald); color: #fff; box-shadow: 0 3px 10px rgba(31,111,84,0.35); transform: rotate(-2deg); }
   .chip.selected:nth-child(even) { transform: rotate(2deg); }
-  .grupo-titulo { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 14px 0 6px; }
+  .grupo-titulo { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 10px 0 6px; }
   .chip-shaun { border-color: var(--tag-shaun); color: var(--tag-shaun); }
   .chip-swift { border-color: var(--tag-swift); color: var(--tag-swift); }
   .chip-salidas { border-color: var(--tag-salidas); color: var(--tag-salidas); }
@@ -86,7 +86,7 @@
   .recibo-preview pre div { min-height: 1.4em; }
 
   #guardarBtn {
-    width: 100%; padding: 14px; margin-top: 14px; border: none; border-radius: 12px;
+    width: 100%; padding: 12px; margin-top: 10px; border: none; border-radius: 12px;
     background: linear-gradient(180deg, var(--emerald) 0%, var(--emerald-deep) 100%);
     color: #fff; font-weight: 700; font-size: 1rem;
     letter-spacing: 0.04em; text-transform: uppercase;
@@ -114,7 +114,6 @@
   .hoja-escrita.borde-gp { border-left-color: var(--tag-gp); }
   .hoja-escrita.borde-hogar { border-left-color: var(--tag-hogar); }
 
-  .spiral { width: 100%; height: 14px; background: repeating-linear-gradient(90deg,#8a6a4e 0 6px, transparent 6px 14px); margin-bottom: -6px; position: relative; z-index: 5; }
   #notebook {
     position: relative; width: 100%; perspective: 1400px;
     height: var(--alto-notebook, 220px);
@@ -190,15 +189,14 @@
     box-sizing: border-box; border: 1px solid var(--line); padding: 18px; border-radius: 6px;
   }
 
-  #borrarTodo { display: block; margin: 10px auto 0; background: none; border: none; color: var(--coral); font-size: 0.75rem; padding: 4px; }
-  .anular { background: none; border: 1.5px solid var(--coral); color: var(--coral); border-radius: 10px; padding: 10px 14px; font-weight: 700; margin-top: 12px; }
+  #borrarTodo { display: block; margin: 22px auto 0; background: none; border: none; color: var(--muted); font-size: 0.68rem; padding: 4px; opacity: 0.7; }
+  .anular { background: none; border: 1px solid var(--coral); color: var(--coral); border-radius: 8px; padding: 5px 10px; font-weight: 700; font-size: 0.78rem; margin-top: 10px; }
   .anular:active { transform: scale(0.97); }
 </style>
 </head>
 <body>
   <h1 id="mesHeader"></h1>
   <div id="notebook">
-    <div class="spiral"></div>
     <div class="pagina-cara pila pila-2" aria-hidden="true"></div>
     <div class="pagina-cara pila pila-1" aria-hidden="true"></div>
     <div id="pageUnder" class="pagina-cara"></div>
@@ -217,8 +215,8 @@
     <button id="btnAbajo">▼</button>
     <button id="btnMesSiguiente">Mes ▶</button>
   </div>
-  <button id="borrarTodo">Borrar todos los registros</button>
   <div id="resumen"></div>
+  <button id="borrarTodo">Borrar todos los registros</button>
 
 <script src="logic.js"></script>
 <script>
