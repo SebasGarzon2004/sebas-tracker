@@ -6,9 +6,15 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 
 ## Dónde está todo ahora mismo
 
-- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `fc2034b`.
+- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `6abde19`.
 - No hay ningún worktree activo — todo el trabajo se hizo commit por commit directo sobre `master`.
-- Las 13 pruebas de `node --test logic.test.js` pasan.
+- Las 14 pruebas de `node --test logic.test.js` pasan (se agregó una para `mesesDisponibles` sin romper las 13 originales).
+
+## Ajustes del 2026-08-04 (segunda pasada, con Ryan)
+
+- **Hueco vacío bajo la hoja de recibo:** la altura compartida entre portada, hoja en blanco y recibos guardados (`--alto-notebook`) solo crecía y nunca bajaba, así que una vez se inflaba (por ejemplo llenando categoría+pago+monto), esa altura se quedaba pegada para siempre, dejando un hueco debajo del campo Nota en la hoja en blanco recién abierta. Se agregó `resetearAltura()`, llamada en los puntos reales de navegación (`commitCambioPagina`, usado por swipe/botones, y `cambiarMes`), que recalcula la altura desde cero contra la página que va a quedar visible. Dentro de una misma página, mientras se llena el formulario, la altura sigue solo creciendo (para no encogerse de golpe mientras se escribe). La transición sigue suave porque `#notebook` ya animaba los cambios de alto por CSS (`transition: height .25s ease`).
+- **Letra del resumen más grande:** `.resumen-total-mes` subió de `1.3rem` a `1.7rem` y `.resumen-fila` de `0.9rem` a `1.15rem` (con más padding/gap alrededor), usando el espacio que se liberó del hueco.
+- **Meses vacíos previos a agosto 2026, fuera:** `mesesDisponibles` en `logic.js` ya no rellena meses pasados sin datos (antes agregaba 2 meses hacia atrás siempre); ahora solo rellena hacia adelante (2 meses siguientes al actual). Los meses pasados con gastos reales se siguen mostrando igual, vía `Object.keys(gastosPorMes)`.
 - Servidor local para probar en el iPhone: `python3 serve-sin-cache.py 8010` (no usar `python3 -m http.server` a secas — Safari cachea versiones viejas; este script manda `Cache-Control: no-store` en cada respuesta). Si Safari sigue mostrando algo viejo después de eso, hay que probar en una pestaña de **Navegación privada**, o agregar `?v=<número que subes cada vez>` al final de la URL — cerrar y reabrir la pestaña normal NO vacía la caché de archivos.
 
 ## Próximo paso, en el orden que pidió Sebas
