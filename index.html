@@ -610,9 +610,9 @@
 
   document.getElementById('notebook').addEventListener('click', (e) => {
     const catBtn = e.target.closest('#chipsCategoria .chip');
-    if (catBtn) { seleccion.categoria = catBtn.dataset.cat; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); return; }
+    if (catBtn) { seleccion.categoria = catBtn.dataset.cat; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); return; }
     const pagoBtn = e.target.closest('#chipsPago .chip');
-    if (pagoBtn) { seleccion.pago = pagoBtn.dataset.pago; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); return; }
+    if (pagoBtn) { seleccion.pago = pagoBtn.dataset.pago; marcarSeleccionActiva(); actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); return; }
     if (e.target.id === 'guardarBtn') guardarGasto();
     const anularBtn = e.target.closest('.anular');
     if (!anularBtn) return;
@@ -626,8 +626,21 @@
   });
 
   document.getElementById('notebook').addEventListener('input', (e) => {
-    if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); mantenerGuardarVisible(); }
+    if (e.target.id === 'monto') { actualizarGuardar(); actualizarRecibo(); recalcularAlturaYMantenerVisible(); }
   });
+
+  // La caja de vista previa (#reciboPreviewBox) aparece/crece cuando el usuario
+  // elige categoría, pago o escribe el monto, pero el alto del cuaderno solo se
+  // calculaba una vez al entrar a la hoja en blanco (con la caja aún vacía). Sin
+  // volver a medir, el contenido nuevo quedaba tapado: la tarjeta no crece y,
+  // como el gesto de doblar página bloquea el scroll táctil dentro de ella
+  // (touch-action: none en #notebook), no había forma de alcanzar "Guardar
+  // gasto" arrastrando el dedo.
+  function recalcularAlturaYMantenerVisible() {
+    const faceFront = document.getElementById('faceFront');
+    if (faceFront) ajustarAltura(faceFront.innerHTML);
+    setTimeout(mantenerGuardarVisible, 260);
+  }
 
   function mantenerGuardarVisible() {
     const btn = document.getElementById('guardarBtn');
