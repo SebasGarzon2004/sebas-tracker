@@ -56,6 +56,10 @@
   .resumen-fila .barra { width: 5px; height: 16px; border-radius: 3px; flex-shrink: 0; }
   .resumen-fila .nombre { flex: 1; color: var(--ink); }
   .resumen-fila .monto { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .cambio-mes { margin-left: 8px; font-size: 0.78rem; font-weight: 600; vertical-align: middle; }
+  .cambio-mes.sube { color: var(--coral); }
+  .cambio-mes.baja { color: var(--emerald); }
+  .cambio-mes.neutro { color: var(--muted); }
   .barra-shaun { background: var(--tag-shaun); }
   .barra-swift { background: var(--tag-swift); }
   .barra-salidas { background: var(--tag-salidas); }
@@ -290,9 +294,17 @@
     const paginas = obtenerPaginas(gastosDelMes, esMesActual);
     estado.posicion = clamp(estado.posicion, -1, paginas.length - 1);
 
+    const mesAnteriorKey = sumarMeses(mesKey, -1);
+    const totalMesAnterior = calcularResumenMes(gastosPorMes[mesAnteriorKey] || []).total;
+    const cambio = esMesActual ? null : cambioPorcentual(resumen.total, totalMesAnterior);
+    const badgeCambio = cambio === null ? '' :
+      cambio === 0 ? `<span class="cambio-mes neutro">= igual que ${nombreMesCorto(mesAnteriorKey)}</span>` :
+      cambio > 0 ? `<span class="cambio-mes sube">↑${cambio}% vs ${nombreMesCorto(mesAnteriorKey)}</span>` :
+      `<span class="cambio-mes baja">↓${Math.abs(cambio)}% vs ${nombreMesCorto(mesAnteriorKey)}</span>`;
+
     document.getElementById('mesHeader').textContent = nombreMes(mesKey);
     document.getElementById('resumen').innerHTML = `
-      <div class="resumen-total-mes rounded">Total del mes: ${moneda(resumen.total)}</div>
+      <div class="resumen-total-mes rounded">Total del mes: ${moneda(resumen.total)}${badgeCambio}</div>
       <div class="resumen-filas">
         ${CATEGORIAS.map(cat => `
           <div class="resumen-fila">
@@ -335,10 +347,16 @@
     return { mesKey, esMesActual, gastosDelMes, resumen, paginas, contenidoActual, html };
   }
 
+  const NOMBRES_MES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
   function nombreMes(mesKey) {
-    const NOMBRES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
     const [anio, mes] = mesKey.split('-').map(Number);
-    return `${NOMBRES[mes - 1]} ${anio}`;
+    return `${NOMBRES_MES[mes - 1]} ${anio}`;
+  }
+
+  function nombreMesCorto(mesKey) {
+    const [, mes] = mesKey.split('-').map(Number);
+    return NOMBRES_MES[mes - 1].toLowerCase();
   }
 
   const PAGOS = ['BreB', 'RappiCard', 'Efectivo'];
