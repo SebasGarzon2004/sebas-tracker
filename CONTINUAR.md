@@ -6,9 +6,18 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 
 ## Dónde está todo ahora mismo
 
-- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `6abde19`.
+- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `5774073`.
 - No hay ningún worktree activo — todo el trabajo se hizo commit por commit directo sobre `master`.
-- Las 14 pruebas de `node --test logic.test.js` pasan (se agregó una para `mesesDisponibles` sin romper las 13 originales).
+- Las 14 pruebas de `node --test logic.test.js` pasan.
+- Servidor local de prueba (`python3 serve-sin-cache.py 8010`) quedó corriendo en background durante la sesión — si ya no está, hay que volver a levantarlo.
+
+## PENDIENTE REAL para la próxima sesión: el campo Nota sigue cortado
+
+Sebas ya confirmó en el iPhone real (Safari y Chrome, con caché borrada de verdad) que "Nota (opcional)" / el input de "Descripción del gasto" TODAVÍA se ve cortado en la parte de abajo de la tarjeta RECIBO, incluso después de varias rondas subiendo el colchón/mínimo/respaldo (llegó hasta colchón 160 / mínimo 210 / respaldo 270 en el commit `4e5a351`) y de descartar la caché como causa (commit `0fcd91b`, service worker arreglado).
+
+Se probó un quinto intento con otro enfoque — mover el espacio extra a un `padding-bottom: 240px` en CSS en vez de seguir sumando al colchón en JS (commit `b6439f7`) — pero Sebas lo probó y quedó **peor que antes**, así que se revirtió con `git revert` (commit `5774073`, deshace exactamente `b6439f7`). El estado actual del código es el mismo que en `0fcd91b`: colchón 160 / mínimo 210 / respaldo 270, con el arreglo del service worker. Sebas confirmó que eso es "donde lo habíamos dejado" — aceptable para parar por hoy, pero el hueco/corte de Nota **no está resuelto de verdad todavía**.
+
+Antes de seguir subiendo o cambiando números sueltos otra vez: vale la pena pedirle a Sebas una captura de pantalla fresca (ya con la caché limpia confirmada) para ver exactamente cuánto le falta, en vez de adivinar el próximo ajuste a ciegas — así se evita repetir el patrón de esta sesión (7 rondas del mismo bug sin cerrarlo).
 
 ## Ajustes del 2026-08-04 (cuarta pasada — la causa real de "no cambió nada")
 
@@ -78,10 +87,8 @@ Sebas ya aprobó esta dirección (papel frío, tinta índigo, serif elegante sol
 
 ## Lo único que falta de siempre
 
-**Verificación visual en el iPhone real** de todo lo construido hoy — Sebas ya fue probando y reportando bugs en vivo durante la sesión, así que la mayoría de lo importante ya pasó por sus manos. Lo único sin probar en pantalla real todavía es el atajo de Siri terminado de punta a punta (se quedó a medias armando la acción de la URL).
-
-Se sumaron otros 20px a los tres valores de altura del cuaderno (colchón 140->160px, piso mínimo 190->210px, fallback CSS 250->270px), a pedido de Sebas, sin haber probado aún si el campo de Nota sigue cortado en el iPhone real.
+**Verificación visual en el iPhone real** de todo lo construido hoy — Sebas ya fue probando y reportando bugs en vivo durante la sesión, así que la mayoría de lo importante ya pasó por sus manos. Lo único sin probar en pantalla real todavía es el atajo de Siri terminado de punta a punta (se quedó a medias armando la acción de la URL), y el campo Nota sigue cortado (ver sección "PENDIENTE REAL" arriba).
 
 ## Una sola instrucción para retomar
 
-Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero. Empieza por la PWA salvo que él diga lo contrario — el atajo de Siri se retoma solo si él lo pide explícitamente.
+Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero. El pendiente inmediato es el campo Nota cortado (ver arriba) — antes de tocar código, pide una captura fresca para ver cuánto falta en vez de seguir adivinando. Después de eso, sigue el orden de siempre: PWA/hosting real, y el atajo de Siri solo si Sebas lo pide explícitamente.
