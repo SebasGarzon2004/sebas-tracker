@@ -4,12 +4,26 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 
 **Ubicación:** todo esto vive en `/home/sebas/universidad/gastos-tracker`, directo en Home, separado de `/home/sebas/TUM` — no hay nada de esta app ni del agente Ryan guardado dentro de TUM.
 
-## Dónde está todo ahora mismo
+## Dónde está todo ahora mismo (cierre del 2026-08-04)
 
-- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `e916546`.
+- Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `6357c7a` — **ya subido a GitHub** (`git push origin master:main`, el remoto usa `main` como nombre de rama, no `master`).
 - No hay ningún worktree activo — todo el trabajo se hizo commit por commit directo sobre `master`.
 - Las 14 pruebas de `node --test logic.test.js` pasan.
-- Servidor local de prueba (`python3 serve-sin-cache.py 8010`) quedó corriendo en background durante la sesión — si ya no está, hay que volver a levantarlo.
+- El servidor local de prueba se apagó al cerrar la sesión — para retomar, levantarlo de nuevo con `python3 serve-sin-cache.py 8010` desde esta carpeta.
+- Caché del service worker en `gastos-cache-v16` — subir el número cada vez que se toque algo real, o el ícono instalado en el iPhone puede seguir mostrando la versión vieja.
+
+## RESUELTO (2026-08-04): color en el recibo — categoría, pago, monto y nota
+
+Sebas pidió darle vida al recibo (antes todo texto plano, sin color, aunque los chips del formulario ya sí tenían color). Se armó un artifact con 4 propuestas visuales (de sutil a marcada) y Sebas eligió la **Opción 2 — "encabezado con acento"**: el título/monto toman el color de la categoría del gasto, y la forma de pago pasa de texto plano a una pastilla suave de su propio color. Al verlo aplicado, pidió también extender el mismo tratamiento a Monto y Nota (antes solo Categoría y Pago tenían color, y se veía raro que dos líneas tuvieran vida y dos no).
+
+**Resultado final (aplicado tanto en la vista previa con máquina de escribir como en el recibo ya guardado):**
+- Categoría y Monto: texto en negrita del color de la categoría (usa las mismas variables `--tag-*` que ya usan los chips).
+- Pago y Nota: pastilla suave del color de la forma de pago (usa las mismas variables `--pago-*`), Nota además en itálica.
+- Mecanismo: cada tarjeta/caja recibe `--acento-cat` y `--acento-pago` como propiedades CSS inline (calculadas desde `BADGE_CATEGORIA`/`CLASE_PAGO`), y el CSS las lee con `color-mix()` para los fondos suaves — sin tocar el JS de la máquina de escribir.
+
+No quedó pendiente nada de esto — Sebas lo confirmó en su iPhone real y se subió a GitHub.
+
+## RESUELTO: el campo Nota ya no se corta (commit `e916546`)
 
 ## RESUELTO: el campo Nota ya no se corta (commit `e916546`)
 
@@ -91,4 +105,10 @@ Sebas ya aprobó esta dirección (papel frío, tinta índigo, serif elegante sol
 
 ## Una sola instrucción para retomar
 
-Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero. El pendiente inmediato es el campo Nota cortado (ver arriba) — antes de tocar código, pide una captura fresca para ver cuánto falta en vez de seguir adivinando. Después de eso, sigue el orden de siempre: PWA/hosting real, y el atajo de Siri solo si Sebas lo pide explícitamente.
+Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero — no hace falta que él reexplique nada. Al cierre del 2026-08-04 no hay ningún bug abierto: el campo Nota quedó resuelto de verdad y el color del recibo también, ambos confirmados en el iPhone real y subidos a GitHub. Lo próximo a retomar, en el orden de siempre:
+
+1. **PWA/hosting real** — para que la app deje de depender de que el servidor local esté corriendo en la compu.
+2. **Dirección visual "Tinta y Trazo"** — aprobada por Sebas pero todavía sin aplicar al código real (ver sección abajo); ahora que el recibo ya tiene su propio sistema de color por categoría/pago, vale la pena revisar si esa dirección sigue siendo la que quiere o si el nuevo color del recibo ya le resuelve lo que buscaba.
+3. **Atajo de Siri** — de último, solo si Sebas lo pide explícitamente (quedó a medio armar, en la acción de la URL).
+
+Antes de levantar el servidor de nuevo, recordar subir el número de `CACHE_NAME` en `sw.js` si se toca algo real, y cerrar del todo el ícono anclado en el iPhone (no solo la pestaña) para que tome la versión nueva.
