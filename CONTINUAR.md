@@ -10,16 +10,6 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 - No hay ningún worktree activo — todo el trabajo se hizo commit por commit directo sobre `master`.
 - Las 14 pruebas de `node --test logic.test.js` pasan (se agregó una para `mesesDisponibles` sin romper las 13 originales).
 
-## Ajustes del 2026-08-04 (quinta pasada — se descarta la caché del todo, el campo Nota seguía corto de espacio de verdad)
-
-Sebas confirmó que ya borró caché en Safari y en Chrome del iPhone, y el campo Nota seguía viéndose cortado — así que la causa de la cuarta pasada (el service worker sirviendo una copia vieja) queda descartada del todo como explicación de esta ronda: el código en sí estaba corto de espacio.
-
-- **Se dejó de subir el colchón/mínimo/respaldo a ciegas.** Ya iban tres rondas subiendo esos tres números (140→160, etc.) y no bastaba. En vez de una cuarta subida a ciegas, se cambió el método: el margen extra para que el campo Nota quepa completo ya NO es un colchón en píxeles que JS suma por encima de lo que mide (`medidor.offsetHeight + 160`) — ahora es `padding-bottom: 240px` puesto directamente en CSS, en una clase `.formulario-recibo` que envuelve el contenido real de la hoja en blanco (el formulario con Monto, Categoría, Forma de pago y Nota). `ajustarAltura()` en `index.html` ahora solo hace `Math.max(medidor.offsetHeight, 210)` — mide la altura real del contenido, que ya incluye ese padding, sin sumar ningún número adivinado aparte. Es más robusto porque el espacio de sobra vive junto al contenido que lo necesita (en el CSS del formulario), no como un ajuste ciego y separado en JS que hay que ir subiendo de a poco sin saber si alcanza.
-- El valor elegido (240px de padding-bottom) es deliberadamente generoso — bastante más que el colchón de 160px de la ronda anterior — para terminar con esto de una vez en vez de quedarse corto otra vez.
-- **Espaciado de "Total del mes":** con la tarjeta RECIBO más alta, el `margin-top` de `#resumen` (antes 14px, pegado justo debajo del cuaderno) se subió a 34px, para que la sección de totales no quede montada ni pegada a la tarjeta que acaba de crecer.
-- Se sigue respetando la decisión de un solo tamaño de página fijo (el grande) que no varía al navegar entre páginas — no se tocó `resetearAltura` ni se reintrodujo el recálculo por página que se quitó en `69e1bdf`; `alturaReferencia` sigue siendo el máximo acumulado, ahora simplemente calculado sin el colchón ciego.
-- Las 14 pruebas de `node --test logic.test.js` siguen pasando (esta pasada no tocó `logic.js`, solo `index.html`).
-
 ## Ajustes del 2026-08-04 (cuarta pasada — la causa real de "no cambió nada")
 
 Sebas subió el colchón/mínimo/respaldo del cuaderno tres rondas seguidas y en el iPhone se seguía viendo igual. Se investigó por qué antes de seguir subiendo números:

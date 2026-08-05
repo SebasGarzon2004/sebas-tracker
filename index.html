@@ -68,7 +68,7 @@
   }
   #mesHeader::after { content: ''; display: block; width: 48px; height: 2px; background: var(--gold); margin: 6px auto 0; border-radius: 2px; }
 
-  #resumen { padding: 18px 20px; border: 1px solid var(--line); border-radius: 10px; margin-top: 34px; background: var(--card); box-shadow: var(--shadow); }
+  #resumen { padding: 18px 20px; border: 1px solid var(--line); border-radius: 10px; margin-top: 14px; background: var(--card); box-shadow: var(--shadow); }
   .resumen-total-mes { font-size: 1.7rem; font-weight: 700; margin-bottom: 14px; }
   .resumen-filas { display: flex; flex-direction: column; gap: 10px; }
   .resumen-fila { display: flex; align-items: center; gap: 10px; font-size: 1.15rem; cursor: pointer; }
@@ -232,17 +232,6 @@
     box-sizing: border-box; border: 1px solid var(--line); padding: 18px; border-radius: 6px;
   }
 
-  /* La hoja en blanco (el formulario de un recibo nuevo) es la página más alta
-     y la que fija el alto único del cuaderno (ver ajustarAltura). Antes ese
-     margen de sobra era un colchón en píxeles calculado a ciegas en JS,
-     sumado por encima de lo medido — y tocarlo a ciegas ronda tras ronda no
-     bastó para que el campo Nota (el último campo, el que más sufre) quedara
-     completo. Ahora el espacio de sobra vive aquí, como padding-bottom real
-     del propio contenido: JS mide la altura real de este bloque (que ya
-     incluye este padding) y no necesita adivinar nada por encima. Generoso
-     a propósito, para no volver a esto. */
-  .formulario-recibo { padding-bottom: 240px; box-sizing: border-box; }
-
   .anular { align-self: flex-end; background: none; border: 1px solid var(--coral); color: var(--coral); border-radius: 8px; padding: 4px 8px; font-weight: 700; font-size: 0.7rem; margin-top: 10px; }
   .anular:active { transform: scale(0.97); }
 </style>
@@ -317,12 +306,7 @@
     // está oculta.
     const cajaRecibo = medidor.querySelector('#reciboPreviewBox');
     if (cajaRecibo && !reciboTieneContenido()) cajaRecibo.style.display = 'none';
-    // El margen de sobra para que el campo Nota no quede cortado ya NO se
-    // adivina aquí en píxeles: vive como padding-bottom real en el CSS de
-    // .formulario-recibo, así que medidor.offsetHeight ya lo incluye. Aquí
-    // solo se aplica un piso mínimo para páginas muy cortas (portada, recibos
-    // guardados sin nota) para que el cuaderno nunca se vea demasiado chico.
-    const alto = Math.max(medidor.offsetHeight, 210);
+    const alto = Math.max(medidor.offsetHeight + 160, 210);
     alturaReferencia = Math.max(alturaReferencia, alto);
     notebook.style.setProperty('--alto-notebook', alturaReferencia + 'px');
   }
@@ -468,22 +452,20 @@
     }
     if (contenido === 'blanco') {
       return `
-        <div class="formulario-recibo">
-          <div class="masthead rounded">Recibo</div>
-          <input type="text" id="monto" inputmode="numeric" placeholder="Monto" autocomplete="off">
-          <div class="recibo-preview" id="reciboPreviewBox"><pre id="reciboPreview" class="content"></pre></div>
-          <div class="grupo-titulo">Categoría</div>
-          <div class="chips" id="chipsCategoria">
-            ${CATEGORIAS.map(c => `<button type="button" class="chip chip-cat ${BADGE_CATEGORIA[c].replace('badge-', 'chip-')}" data-cat="${c}">${c}</button>`).join('')}
-          </div>
-          <div class="grupo-titulo">Forma de pago</div>
-          <div class="chips" id="chipsPago">
-            ${PAGOS.map(p => `<button type="button" class="chip chip-pago chip-${CLASE_PAGO[p]}" data-pago="${p}">${p}</button>`).join('')}
-          </div>
-          <div class="grupo-titulo">Nota (opcional)</div>
-          <input type="text" id="nota" placeholder="Descripción del gasto" maxlength="140">
-          <button id="guardarBtn" disabled style="display:none">Guardar gasto</button>
+        <div class="masthead rounded">Recibo</div>
+        <input type="text" id="monto" inputmode="numeric" placeholder="Monto" autocomplete="off">
+        <div class="recibo-preview" id="reciboPreviewBox"><pre id="reciboPreview" class="content"></pre></div>
+        <div class="grupo-titulo">Categoría</div>
+        <div class="chips" id="chipsCategoria">
+          ${CATEGORIAS.map(c => `<button type="button" class="chip chip-cat ${BADGE_CATEGORIA[c].replace('badge-', 'chip-')}" data-cat="${c}">${c}</button>`).join('')}
         </div>
+        <div class="grupo-titulo">Forma de pago</div>
+        <div class="chips" id="chipsPago">
+          ${PAGOS.map(p => `<button type="button" class="chip chip-pago chip-${CLASE_PAGO[p]}" data-pago="${p}">${p}</button>`).join('')}
+        </div>
+        <div class="grupo-titulo">Nota (opcional)</div>
+        <input type="text" id="nota" placeholder="Descripción del gasto" maxlength="140">
+        <button id="guardarBtn" disabled style="display:none">Guardar gasto</button>
       `;
     }
     const badgeClase = BADGE_CATEGORIA[contenido.categoria] || 'badge-hogar';
