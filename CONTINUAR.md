@@ -10,6 +10,21 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 - No hay ningún worktree activo — todo el trabajo se hizo commit por commit directo sobre `master`.
 - Las 14 pruebas de `node --test logic.test.js` pasan (se agregó una para `mesesDisponibles` sin romper las 13 originales).
 
+## Ajustes del 2026-08-04 (cuarta pasada — la causa real de "no cambió nada")
+
+Sebas subió el colchón/mínimo/respaldo del cuaderno tres rondas seguidas y en el iPhone se seguía viendo igual. Se investigó por qué antes de seguir subiendo números:
+
+- **No había ningún límite de altura escondido.** Se revisó todo `index.html` buscando `max-height`, `overflow: hidden` u otro tamaño fijo aparte de `--alto-notebook`; no existe otro — el único candidato, `.pagina-cara { overflow: auto }`, deja scroll en vez de recortar. La lógica de `ajustarAltura()` (colchón 160, mínimo 210, respaldo 270) está bien y sí se aplicaría si llegara a correr.
+- **La causa real es la app instalada en la pantalla de inicio del iPhone, sirviendo una copia vieja vía el service worker.** El ícono que Sebas tiene instalado abre siempre `./index.html` (el `start_url` del `manifest.json`, sin `?v=`), y esa página está bajo el control del `sw.js` que quedó registrado desde antes. Aunque la estrategia es "red primero", el `fetch()` de dentro del service worker no forzaba descartar la caché HTTP del teléfono, así que en el iPhone real (a diferencia de escribir `?v=` en una pestaña nueva de Safari, que si sirvió para versiones anteriores) el ícono instalado podía seguir mostrando HTML/JS viejo aunque hubiera internet.
+- **Arreglo aplicado:** en `sw.js`, el `fetch(evento.request)` ahora pasa `{ cache: 'no-store' }`, para que el service worker nunca conteste con algo que el propio teléfono tenía cacheado por su cuenta. Además se subió `CACHE_NAME` de `'gastos-cache-v1'` a `'gastos-cache-v2'`, para que la caché vieja del service worker quede huérfana y el `activate` la borre sola. Este cambio de nombre hay que repetirlo (subir el número) cada vez que se suba algo importante, para forzar que el ícono instalado lo note.
+- **Lo que Sebas tiene que hacer en el iPhone para verlo de verdad esta vez** (no basta con escribir `?v=` de nuevo):
+  1. Borrar el ícono viejo de "Sebas' Tracker" de la pantalla de inicio (mantener presionado → Eliminar app / Quitar de la pantalla de inicio).
+  2. Abrir Safari normal (no el ícono), entrar a la URL de siempre, y forzar que cargue fresco: mejor en una pestaña de **Navegación privada**, o subiendo el número de `?v=` otra vez.
+  3. Confirmar visualmente que el campo Nota ya no se ve cortado ahí, en Safari normal.
+  4. Recién ahí, desde el botón de compartir, "Añadir a pantalla de inicio" de nuevo, para reinstalar el ícono con el service worker nuevo desde cero.
+  5. Alternativa más rápida si no quiere reinstalar el ícono: abrir la app desde el ícono, e irse al multitarea del iPhone (deslizar hacia arriba y pausar) y deslizarla hacia arriba para **cerrarla del todo** (no solo salir/minimizar) antes de volver a abrirla — así se fuerza a que el service worker revise si hay una versión nueva.
+- Los tres números del cuaderno (colchón 160, mínimo 210, respaldo 270 del commit `4e5a351`) NO se tocaron en esta pasada — no había evidencia de que estuvieran mal, el problema era que nunca estaban llegando a correr en el teléfono de Sebas.
+
 ## Ajustes del 2026-08-04 (tercera pasada, tras probar en iPhone instalado como PWA)
 
 - **Margen a los lados y abajo:** el `body` tenía `padding: 16px` parejo por los cuatro lados. Se dejó el top igual (16px, sin tocar) y se subieron los laterales a 20px y el fondo a 28px, sumando `env(safe-area-inset-*)` para que en el iPhone (con `viewport-fit=cover` en el manifest) también respete el redondeo de esquinas y la barra de gestos de abajo.

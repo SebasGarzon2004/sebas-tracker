@@ -2,7 +2,7 @@
 // funcione sin internet y cargue al instante. Estrategia "red primero,
 // caché de respaldo": si hay conexión, siempre trae la versión más nueva
 // (y la deja guardada); si no hay conexión, usa la última copia guardada.
-const CACHE_NAME = 'gastos-cache-v1';
+const CACHE_NAME = 'gastos-cache-v2';
 const ARCHIVOS_BASE = [
   './',
   './index.html',
@@ -31,7 +31,7 @@ self.addEventListener('activate', (evento) => {
 self.addEventListener('fetch', (evento) => {
   if (evento.request.method !== 'GET') return;
   evento.respondWith(
-    fetch(evento.request)
+    fetch(evento.request, { cache: 'no-store' })
       .then((respuesta) => {
         const copia = respuesta.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(evento.request, copia));
