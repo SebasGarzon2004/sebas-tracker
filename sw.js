@@ -2,7 +2,7 @@
 // funcione sin internet y cargue al instante. Estrategia "red primero,
 // caché de respaldo": si hay conexión, siempre trae la versión más nueva
 // (y la deja guardada); si no hay conexión, usa la última copia guardada.
-const CACHE_NAME = 'gastos-cache-v15';
+const CACHE_NAME = 'gastos-cache-v16';
 const ARCHIVOS_BASE = [
   './',
   './index.html',
