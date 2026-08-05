@@ -126,9 +126,20 @@
 
   #monto { font-size: 1.4rem; width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); }
   #nota { font-size: 0.95rem; width: 100%; padding: 14px 12px; min-height: 44px; box-sizing: border-box; border: 1px solid var(--line); border-radius: 8px; background: var(--card); color: var(--ink); font-family: inherit; }
-  .recibo-preview { margin: 14px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--card); min-height: 60px; }
+  .recibo-preview {
+    margin: 14px 0; padding: 10px 12px; border-radius: 6px; min-height: 60px;
+    border: 1px solid color-mix(in srgb, var(--acento-cat, var(--line)) 45%, var(--line));
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acento-cat, var(--card)) 6%, var(--card)) 0%, var(--card) 90px);
+    transition: background .2s ease, border-color .2s ease;
+  }
   .recibo-preview pre { margin: 0; font-family: 'Courier New', monospace; font-size: 1.05rem; color: var(--ink); white-space: pre-wrap; word-break: break-word; }
   .linea-recibo { min-height: 1.4em; display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .linea-recibo[data-linea="categoria"] .texto-linea { color: var(--acento-cat, var(--ink)); font-weight: 600; }
+  .linea-recibo[data-linea="pago"] .texto-linea {
+    display: inline-block; color: var(--acento-pago, var(--muted)); font-weight: 600;
+    background: color-mix(in srgb, var(--acento-pago, var(--card)) 14%, var(--card));
+    border-radius: 999px; padding: 1px 10px;
+  }
   .deshacer-linea {
     flex-shrink: 0; width: 20px; height: 20px; margin-top: 1px; border-radius: 50%;
     border: 1px solid var(--line); background: var(--card); color: var(--muted);
@@ -165,14 +176,21 @@
   .badge-hogar { background: var(--tag-hogar); }
   .hoja-escrita {
     border-left: 5px solid transparent; margin: -18px -18px -18px -13px; padding: 20px 20px 20px 15px;
-    box-sizing: border-box; min-height: calc(100% + 36px);
+    box-sizing: border-box; min-height: calc(100% + 36px); border-radius: 6px;
     display: flex; flex-direction: column; justify-content: space-between;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--acento-cat, var(--card)) 6%, var(--card)) 0%, var(--card) 120px);
   }
   .hoja-escrita.borde-shaun { border-left-color: var(--tag-shaun); }
   .hoja-escrita.borde-swift { border-left-color: var(--tag-swift); }
   .hoja-escrita.borde-salidas { border-left-color: var(--tag-salidas); }
   .hoja-escrita.borde-gp { border-left-color: var(--tag-gp); }
   .hoja-escrita.borde-hogar { border-left-color: var(--tag-hogar); }
+  .hoja-escrita .masthead { border-bottom: 2px solid var(--acento-cat, var(--line)); color: var(--acento-cat, var(--ink)); }
+  .pago-pastilla {
+    display: inline-block; font-weight: 600; border-radius: 999px; padding: 2px 12px;
+    color: var(--acento-pago, var(--muted));
+    background: color-mix(in srgb, var(--acento-pago, var(--card)) 14%, var(--card));
+  }
 
   #notebook {
     position: relative; width: 100%; flex-shrink: 0;
@@ -471,12 +489,14 @@
     const badgeClase = BADGE_CATEGORIA[contenido.categoria] || 'badge-hogar';
     const bordeClase = badgeClase.replace('badge-', 'borde-');
     const iniciales = INICIALES_CATEGORIA[contenido.categoria] || '?';
+    const varCat = '--tag-' + badgeClase.replace('badge-', '');
+    const varPago = '--pago-' + (CLASE_PAGO[contenido.pago] || 'efectivo');
     return `
-      <div class="hoja-escrita ${bordeClase}">
+      <div class="hoja-escrita ${bordeClase}" style="--acento-cat: var(${varCat}); --acento-pago: var(${varPago});">
         <div class="masthead rounded">Recibo</div>
         <p class="monto-grande rounded">${moneda(contenido.monto)}</p>
         <p class="content detalle-secundario"><span class="badge ${badgeClase}">${iniciales}</span>${contenido.categoria}</p>
-        <p class="content detalle-secundario">${contenido.pago}</p>
+        <p class="content detalle-secundario"><span class="pago-pastilla">${contenido.pago}</span></p>
         ${contenido.nota ? `<p class="content detalle-secundario nota-gasto">${escapeHtml(contenido.nota)}</p>` : ''}
         <p class="content detalle-secundario fecha-gasto">${formatearFechaHora(contenido.fecha)}</p>
         <button class="anular" data-id="${contenido.id}">Anular este gasto</button>
@@ -843,7 +863,19 @@
     });
 
     const contenedor = document.getElementById('reciboPreviewBox');
-    if (contenedor) contenedor.style.display = reciboTieneContenido() ? '' : 'none';
+    if (contenedor) {
+      contenedor.style.display = reciboTieneContenido() ? '' : 'none';
+      if (seleccion.categoria) {
+        contenedor.style.setProperty('--acento-cat', 'var(--tag-' + BADGE_CATEGORIA[seleccion.categoria].replace('badge-', '') + ')');
+      } else {
+        contenedor.style.removeProperty('--acento-cat');
+      }
+      if (seleccion.pago) {
+        contenedor.style.setProperty('--acento-pago', 'var(--pago-' + CLASE_PAGO[seleccion.pago] + ')');
+      } else {
+        contenedor.style.removeProperty('--acento-pago');
+      }
+    }
   }
 
   document.getElementById('notebook').addEventListener('click', (e) => {
