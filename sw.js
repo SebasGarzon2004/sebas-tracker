@@ -2,11 +2,12 @@
 // funcione sin internet y cargue al instante. Estrategia "red primero,
 // caché de respaldo": si hay conexión, siempre trae la versión más nueva
 // (y la deja guardada); si no hay conexión, usa la última copia guardada.
-const CACHE_NAME = 'gastos-cache-v16';
+const CACHE_NAME = 'gastos-cache-v17';
 const ARCHIVOS_BASE = [
   './',
   './index.html',
   './logic.js',
+  './sync.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',

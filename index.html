@@ -285,8 +285,34 @@
   <div id="resumen"></div>
 
 <script src="logic.js"></script>
+<script src="sync.js"></script>
 <script>
   const KEY = 'gastos_v1';
+  const URL_WORKER = 'https://gastos-sync.<tu-subdominio>.workers.dev';
+  const TOKEN_WORKER = '<el mismo TOKEN_COMPARTIDO configurado en la Tarea 3>';
+  const COLA_KEY = 'gastos_cola_v1';
+
+  function cargarCola() {
+    try { return JSON.parse(localStorage.getItem(COLA_KEY)) || []; }
+    catch { return []; }
+  }
+
+  function guardarCola(cola) { localStorage.setItem(COLA_KEY, JSON.stringify(cola)); }
+
+  async function enviarOperacion(operacion) {
+    const ruta = operacion.tipo === 'nuevo' ? '/gasto' : '/gasto/anular';
+    const respuesta = await fetch(URL_WORKER + ruta, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${TOKEN_WORKER}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify(operacion.payload),
+    });
+    if (!respuesta.ok) throw new Error('Worker respondió con error');
+  }
+
+  async function sincronizar() {
+    const restante = await procesarCola(cargarCola(), enviarOperacion);
+    guardarCola(restante);
+  }
 
   function cargarGastos() { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
   function guardarGastos(gastos) { localStorage.setItem(KEY, JSON.stringify(gastos)); }
@@ -754,6 +780,9 @@
     const gastos = cargarGastos();
     gastos.push({ id: Date.now(), monto, categoria: seleccion.categoria, pago: seleccion.pago, nota, fecha: new Date().toISOString() });
     guardarGastos(gastos);
+    const nuevoGasto = gastos[gastos.length - 1];
+    guardarCola(agregarACola(cargarCola(), crearOperacionNuevoGasto(nuevoGasto)));
+    sincronizar();
     seleccion = { categoria: null, pago: null };
 
     const stamp = document.getElementById('stamp');
@@ -908,6 +937,8 @@
     const id = Number(anularBtn.dataset.id);
     const gastos = cargarGastos().filter(g => g.id !== id);
     guardarGastos(gastos);
+    guardarCola(agregarACola(cargarCola(), crearOperacionAnular(id)));
+    sincronizar();
     window._paginaInicial = false;
     estado.posicion = -1;
     render();
@@ -1037,6 +1068,11 @@
   document.getElementById('btnMesSiguienteVisible').addEventListener('click', () => cambiarMes(1));
   document.getElementById('btnArriba').addEventListener('click', () => moverPagina('arriba'));
   document.getElementById('btnAbajo').addEventListener('click', () => moverPagina('abajo'));
+
+  sincronizar();
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') sincronizar();
+  });
 
   (function gestos() {
     const UMBRAL_EJE = 10;
