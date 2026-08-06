@@ -60,11 +60,14 @@ Sebas subió el colchón/mínimo/respaldo del cuaderno tres rondas seguidas y en
 - **Meses vacíos previos a agosto 2026, fuera:** `mesesDisponibles` en `logic.js` ya no rellena meses pasados sin datos (antes agregaba 2 meses hacia atrás siempre); ahora solo rellena hacia adelante (2 meses siguientes al actual). Los meses pasados con gastos reales se siguen mostrando igual, vía `Object.keys(gastosPorMes)`.
 - Servidor local para probar en el iPhone: `python3 serve-sin-cache.py 8010` (no usar `python3 -m http.server` a secas — Safari cachea versiones viejas; este script manda `Cache-Control: no-store` en cada respuesta). Si Safari sigue mostrando algo viejo después de eso, hay que probar en una pestaña de **Navegación privada**, o agregar `?v=<número que subes cada vez>` al final de la URL — cerrar y reabrir la pestaña normal NO vacía la caché de archivos.
 
+## RESUELTO (2026-08-06): PWA en hosting real, instalada y confirmada en el iPhone
+
+Se verificó que el repo ya estaba al día en GitHub (`master` sincronizado con `origin/main`, sin cambios pendientes) y que GitHub Pages ya estaba sirviendo exactamente ese mismo código: **https://sebasgarzon2004.github.io/sebas-tracker/**. Se comparó byte a byte `index.html`, `manifest.json` y `sw.js` locales contra lo publicado — idénticos. Sebas instaló el ícono desde ese link en Safari real (no en un servidor local), lo usó, registró un gasto y lo cerró: guarda bien y funciona bien. Con esto, el pendiente "PWA primero" queda cerrado de verdad — la app ya no depende de que el servidor local esté corriendo en la compu.
+
 ## Próximo paso, en el orden que pidió Sebas
 
-1. **PWA primero** (manifest.json + service worker + hosting real) — para que la app deje de depender de que el servidor local esté corriendo en la compu, y se pueda instalar de verdad en la pantalla de inicio del iPhone sin el rollo de la caché de Safari.
-2. **El atajo de Siri queda de último**, a propósito — Sebas lo dejó a medio armar (llegó hasta la acción de la URL, sin terminarla) y prefiere resolver primero la PWA. No retomar el atajo hasta que él lo pida.
-3. Después de la PWA (o en paralelo si Sebas lo pide): aplicar de verdad el rediseño visual **"Tinta y Trazo"** al código — ver abajo, sigue siendo un pendiente real, no cosmético.
+1. **Dirección visual "Tinta y Trazo"** — aprobada por Sebas pero todavía sin aplicar al código real (ver sección abajo); ahora que el recibo ya tiene su propio sistema de color por categoría/pago, vale la pena revisar con Sebas si esa dirección sigue siendo la que quiere o si el color actual del recibo ya le resuelve lo que buscaba.
+2. **El atajo de Siri queda de último**, a propósito — Sebas lo dejó a medio armar (llegó hasta la acción de la URL, sin terminarla). No retomar el atajo hasta que él lo pida.
 
 ## Recap completo de la sesión larga de hoy (2026-08-04)
 
@@ -101,14 +104,13 @@ Sebas ya aprobó esta dirección (papel frío, tinta índigo, serif elegante sol
 
 ## Lo único que falta de siempre
 
-**Verificación visual en el iPhone real** de todo lo construido hoy — Sebas ya fue probando y reportando bugs en vivo durante la sesión, así que la mayoría de lo importante ya pasó por sus manos. Lo único sin probar en pantalla real todavía es el atajo de Siri terminado de punta a punta (se quedó a medias armando la acción de la URL), y el campo Nota sigue cortado (ver sección "PENDIENTE REAL" arriba).
+**Atajo de Siri** — se quedó a medias armando la acción de la URL; sin probar de punta a punta todavía. Todo lo demás (Nota, color del recibo, PWA instalada en hosting real) ya está confirmado en el iPhone real.
 
 ## Una sola instrucción para retomar
 
-Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero — no hace falta que él reexplique nada. Al cierre del 2026-08-04 no hay ningún bug abierto: el campo Nota quedó resuelto de verdad y el color del recibo también, ambos confirmados en el iPhone real y subidos a GitHub. Lo próximo a retomar, en el orden de siempre:
+Cuando Sebas diga **"llama a Ryan"** (o algo parecido, como "sigamos con la app de gastos"), lee este archivo primero — no hace falta que él reexplique nada. Al cierre del 2026-08-06 no hay ningún bug abierto: el campo Nota, el color del recibo y la PWA en hosting real (https://sebasgarzon2004.github.io/sebas-tracker/) están confirmados y funcionando en el iPhone real. Lo próximo a retomar, en el orden de siempre:
 
-1. **PWA/hosting real** — para que la app deje de depender de que el servidor local esté corriendo en la compu.
-2. **Dirección visual "Tinta y Trazo"** — aprobada por Sebas pero todavía sin aplicar al código real (ver sección abajo); ahora que el recibo ya tiene su propio sistema de color por categoría/pago, vale la pena revisar si esa dirección sigue siendo la que quiere o si el nuevo color del recibo ya le resuelve lo que buscaba.
-3. **Atajo de Siri** — de último, solo si Sebas lo pide explícitamente (quedó a medio armar, en la acción de la URL).
+1. **Dirección visual "Tinta y Trazo"** — aprobada por Sebas pero todavía sin aplicar al código real (ver sección abajo); ahora que el recibo ya tiene su propio sistema de color por categoría/pago, vale la pena revisar si esa dirección sigue siendo la que quiere o si el color actual del recibo ya le resuelve lo que buscaba.
+2. **Atajo de Siri** — de último, solo si Sebas lo pide explícitamente (quedó a medio armar, en la acción de la URL).
 
 Antes de levantar el servidor de nuevo, recordar subir el número de `CACHE_NAME` en `sw.js` si se toca algo real, y cerrar del todo el ícono anclado en el iPhone (no solo la pestaña) para que tome la versión nueva.
