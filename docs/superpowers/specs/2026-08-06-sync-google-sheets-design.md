@@ -76,8 +76,27 @@ Si en el futuro esto cambia (por ejemplo, otros usuarios reales), este punto hab
 - El Worker se prueba de forma aislada (mandarle gastos de prueba con `curl` o similar) antes de conectarlo a la app real.
 - La lógica de cola pendiente / reintento en la app se cubre con pruebas automáticas en el mismo patrón que ya existe (`logic.test.js`), simulando que el envío al Worker falla y verificando que el gasto queda encolado y se reintenta correctamente.
 
+## Ampliación (2026-08-06, misma sesión): formato visual y gráficas en Sheets
+
+Sebas pidió que la hoja mantenga la misma identidad visual que la app ("bonito, coherente, fácil de entender") y que incluya análisis, no solo datos crudos. Esto reemplaza lo que antes estaba fuera de alcance.
+
+**Estructura:** una sola pestaña con todos los gastos de todos los meses (no una pestaña por mes) — columna `Fecha` permite filtrar por mes con los filtros nativos de Sheets. Se prefirió por simplicidad sobre pestañas separadas por mes.
+
+**Formato de color:** cada fila se colorea según su categoría, usando los mismos colores hex que ya usa la app (de `index.html`, variables `--tag-*`):
+- Shaun `#2F8F6B`, Swift `#B98A2E`, Salidas `#B5473A`, Gastos Personales `#46626F`, Hogar `#8A6A4E`.
+
+La columna de Forma de pago usa los mismos colores `--pago-*`: BreB `#6B4FA0`, Tarjeta de Crédito `#E8590C`, Efectivo `#2E7D8C`. El Worker aplica este formato vía la API de Sheets (`batchUpdate` con `CellFormat`) al escribir cada fila — no es formato manual que Sebas tenga que mantener.
+
+**Gráficas (en una pestaña de resumen aparte, separada de la de datos crudos):**
+1. Gasto total por categoría del mes actual (pastel o barras, mismos colores de categoría).
+2. Gasto total por forma de pago del mes actual (mismos colores de pago).
+3. Tendencia de gasto total mes a mes, a lo largo del tiempo (barras o línea).
+
+Estas gráficas se generan/actualizan también desde el Worker vía la API de Sheets (`batchUpdate` con `AddChartRequest`/`UpdateChartSpecRequest`), no manualmente por Sebas.
+
 ## Fuera de alcance (explícitamente, para esta ronda)
 
 - Edición desde Sheets hacia la app (sync de un solo sentido, ya decidido arriba).
 - Multi-usuario o cualquier forma de compartir la hoja con otra persona.
-- Gráficas o dashboards dentro de Sheets — Sebas puede armarlas él mismo con las columnas ya expuestas, no es parte de este trabajo.
+- Pestaña separada por mes (se eligió una sola pestaña filtrable, ver arriba).
+- **Análisis mensual automático con Claude** ("que al final de cada mes me haga un análisis de cómo estuvieron mis gastos"): idea buena pero es un subsistema aparte — necesita su propio disparador mensual (cron), llave de API de Claude, y decidir el canal de entrega (¿notificación? ¿otra pestaña? ¿correo?). Sebas decidió explícitamente dejarlo para una ronda de brainstorming separada, para no mezclar dos proyectos en un mismo plan.
