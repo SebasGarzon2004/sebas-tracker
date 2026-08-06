@@ -1,4 +1,4 @@
-const { agregarGasto } = require('./sheets.js');
+const { agregarGasto, anularGasto } = require('./sheets.js');
 
 export default {
   async fetch(request, env) {
@@ -12,6 +12,16 @@ export default {
       try {
         const gasto = await request.json();
         await agregarGasto(env, gasto);
+        return new Response('ok');
+      } catch (error) {
+        return new Response(error.message, { status: 500 });
+      }
+    }
+
+    if (request.method === 'POST' && url.pathname === '/gasto/anular') {
+      try {
+        const { id } = await request.json();
+        await anularGasto(env, id);
         return new Response('ok');
       } catch (error) {
         return new Response(error.message, { status: 500 });

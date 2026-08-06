@@ -77,4 +77,18 @@ async function agregarGasto(env, gasto) {
   });
 }
 
-module.exports = { agregarGasto, llamarSheets };
+async function anularGasto(env, id) {
+  const datosIds = await llamarSheets(env, 'GET', '/values/Gastos!G:G');
+  const filas = datosIds.values || [];
+  const indiceFila = filas.findIndex((fila) => fila[0] === String(id));
+  if (indiceFila === -1) {
+    throw new Error(`No se encontró el gasto con id ${id} en Sheets`);
+  }
+  const numeroFila = indiceFila + 1; // las filas de Sheets empiezan en 1, igual que el índice del array (fila 1 = encabezado, incluida en la lectura)
+
+  await llamarSheets(env, 'PUT', `/values/Gastos!F${numeroFila}?valueInputOption=USER_ENTERED`, {
+    values: [['Anulado']],
+  });
+}
+
+module.exports = { agregarGasto, anularGasto, llamarSheets };
