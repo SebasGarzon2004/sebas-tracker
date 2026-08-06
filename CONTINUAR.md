@@ -4,6 +4,45 @@ Este archivo es para que, cuando vuelvas a abrir esto y llames a Ryan, retome ex
 
 **Ubicación:** todo esto vive en `/home/sebas/universidad/gastos-tracker`, directo en Home, separado de `/home/sebas/TUM` — no hay nada de esta app ni del agente Ryan guardado dentro de TUM.
 
+## EN PROGRESO (2026-08-06): sincronizar gastos con Google Sheets — pausado a mitad de camino
+
+Sebas pidió una sesión de brainstorming sobre conectar la app a Internet para respaldar los gastos y poder analizarlos desde la compu. Se armó spec (`docs/superpowers/specs/2026-08-06-sync-google-sheets-design.md`) y plan (`docs/superpowers/plans/2026-08-06-sync-google-sheets.md`), y se está ejecutando con subagentes (subagent-driven-development). **Quedó pausado a mitad de camino** — falta bastante, ver abajo.
+
+**Dónde vive el trabajo:** worktree en `.claude/worktrees/sync-google-sheets`, rama `worktree-sync-google-sheets` (NO está fusionado a `master` todavía — este mismo archivo, en esa rama, es el que tiene esta sección; el de `master` todavía no la tiene). El ledger de progreso está en `.superpowers/sdd/progress.md` dentro de ese worktree.
+
+**Arquitectura elegida:** la app sigue guardando todo local (eso no cambia); además manda cada gasto/anulación a un Worker propio de Cloudflare (`worker/`), que es el único que habla con Google Sheets usando una cuenta de servicio. Sync de un solo sentido (app → Sheets). Detalle completo en la spec.
+
+### Lo que YA está hecho y probado (código, Tareas 3-9 del plan, todas revisadas)
+
+- `worker/src/auth.js` — autenticación con la cuenta de servicio de Google (JWT firmado con Web Crypto, sin librerías externas).
+- `worker/src/formato.js` — colores exactos de categoría/pago (los mismos de la app) y construcción de la fila para Sheets.
+- `worker/src/sheets.js` + `worker/src/index.js` — endpoints `POST /gasto` (agrega fila coloreada) y `POST /gasto/anular` (marca Estado=Anulado), con manejo de errores.
+- `sync.js` (raíz del repo) — cola pendiente y reintento, con pruebas (TDD).
+- `index.html` y `sw.js` — ya conectados a `sync.js`, pero **`URL_WORKER` y `TOKEN_WORKER` siguen como placeholders literales** (`'https://gastos-sync.<tu-subdominio>.workers.dev'` y similar) — no van a funcionar hasta que se reemplacen por los valores reales del Worker desplegado.
+- Todos los commits de este trabajo (`13c06b8` a `6f84d5f`) están en la rama del worktree, revisados uno por uno sin hallazgos Critical/Important sin resolver — solo quedan unos Minor anotados en el ledger para la revisión final de rama completa (todavía no se hizo esa revisión final).
+
+### Lo que YA está hecho a mano por fuera del código (Tareas 1 y 2 del plan)
+
+- **Proyecto de Google Cloud `sebas-gastos` creado**, con la Google Sheets API habilitada.
+- **Cuenta de servicio `gastos-sync@sebas-gastos.iam.gserviceaccount.com` creada**, con su llave JSON generada y descargada (queda en la carpeta de Descargas del navegador de Sebas — nombre de archivo con el patrón `sebas-gastos-<hash>.json`; nadie más la tiene ni se subió a ningún lado).
+- **Hoja de Google Sheets "Mis Gastos" creada**: `https://docs.google.com/spreadsheets/d/1_qJcx_s5cDMV-cKpfBDu2LfLBa9LwRd7R2UdPTQoXd8/edit` (ese es también el `SPREADSHEET_ID`).
+  - Pestaña `Gastos`: encabezados A-G (Fecha, Categoría, Forma de pago, Monto, Nota, Estado, ID), fila 1 en negrita.
+  - Pestaña `Resumen`: las 3 tablas con fórmulas `SUMIFS`/`EDATE` (con `;` como separador, porque la hoja quedó en locale español) y sus 3 gráficas (categoría, forma de pago, tendencia mensual). **La tabla de tendencia mensual quedó corregida a pedido de Sebas: empieza en el mes actual (agosto 2026) y va 11 meses hacia adelante** (no hacia atrás — no tiene sentido mostrar meses pasados sin datos, ya que la app recién empieza a usarse).
+  - La hoja ya está **compartida como Editor con `gastos-sync@sebas-gastos.iam.gserviceaccount.com`**.
+
+### Lo que FALTA (en orden, para retomar)
+
+1. **Terminar la Tarea 3 del plan (Pasos 7-8):** hacer `wrangler login` (con la cuenta de Cloudflare de Sebas), `wrangler deploy` del Worker, y configurar los 3 secretos (`TOKEN_COMPARTIDO`, `SPREADSHEET_ID` = el ID de arriba, `CUENTA_SERVICIO_JSON` = contenido del archivo `.json` descargado). Esto es interactivo/local, no lo puede hacer un subagente — se hace junto con Sebas o él lo corre él mismo con `npx wrangler login` / `npx wrangler deploy` / `npx wrangler secret put ...` desde `worker/`.
+2. **Reemplazar los placeholders en `index.html`:** una vez desplegado, poner la URL real del Worker en `URL_WORKER` y el `TOKEN_COMPARTIDO` real en `TOKEN_WORKER`.
+3. **Tarea 10 del plan:** verificación end-to-end real (con internet, sin internet/modo avión, y anular un gasto) — probando en el iPhone de Sebas.
+4. **Tarea 11 del plan:** cerrar en este mismo archivo cuando todo funcione, hacer commit y push.
+5. **Revisión final de rama completa** (whole-branch review) antes de fusionar el worktree a `master` — pendiente, no se ha hecho.
+6. Una vez fusionado: recordar subir `CACHE_NAME` en `sw.js` otra vez si hace falta, y avisarle a Sebas que reinstale el ícono del iPhone.
+
+### Disparador para retomar exactamente esto
+
+Si Sebas dice algo como "sigamos con lo de Sheets" o "termina la sincronización", entrar al worktree (`.claude/worktrees/sync-google-sheets`, rama `worktree-sync-google-sheets`), leer `.superpowers/sdd/progress.md` y el plan, y seguir por el punto 1 de la lista de arriba. No hace falta repetir nada de lo ya hecho.
+
 ## Dónde está todo ahora mismo (cierre del 2026-08-04)
 
 - Repo principal: `/home/sebas/universidad/gastos-tracker`, en `master`, commit `6357c7a` — **ya subido a GitHub** (`git push origin master:main`, el remoto usa `main` como nombre de rama, no `master`).
