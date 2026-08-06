@@ -9,9 +9,13 @@ export default {
     }
 
     if (request.method === 'POST' && url.pathname === '/gasto') {
-      const gasto = await request.json();
-      await agregarGasto(env, gasto);
-      return new Response('ok');
+      try {
+        const gasto = await request.json();
+        await agregarGasto(env, gasto);
+        return new Response('ok');
+      } catch (error) {
+        return new Response(error.message, { status: 500 });
+      }
     }
 
     return new Response('No encontrado', { status: 404 });
